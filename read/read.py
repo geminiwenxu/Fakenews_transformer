@@ -9,7 +9,7 @@ class DataPath:
     def get_data(self):
         return pd.read_csv(self.data_path)
 
-    def get_large_data(self):
+    def get_large_data(self) -> pd.Dataframe:
         for chunk in pd.read_csv(self.data_path):
             yield chunk
 
