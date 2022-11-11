@@ -1,4 +1,3 @@
-import json
 from collections import defaultdict
 
 import pandas as pd
@@ -39,9 +38,11 @@ test_path = resource_filename(__name__, config['test']['path'])
 
 df_train = pd.read_json(train_path)
 df_dev = pd.read_json(dev_path)
+df_test = pd.read_json(test_path)
 
 train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
 dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
+test_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
 
 EPOCHS = 1
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
@@ -74,79 +75,35 @@ def main():
 
         print(f'Train loss {train_loss} accuracy {train_acc}')
 
-        # val_acc, val_loss = eval_model(
-        #     model,
-        #     dev_data_loader,
-        #     loss_fn,
-        #     device,
-        #     len(df_dev)
-        # )
-        #
-        # print(f'Val   loss {val_loss} accuracy {val_acc}')
-        # print()
-        #
-        # history['train_acc'].append(train_acc)
-        # history['train_loss'].append(val_acc)
-        # history['val_acc'].append(val_acc)
-        # history['val_loss'].append(val_loss)
-        #
-        # if val_acc > best_accuracy:
-        #     torch.save(model.state_dict(), 'best_model_state.bin')
-        #     best_accuracy = val_acc
+        val_acc, val_loss = eval_model(
+            model,
+            dev_data_loader,
+            loss_fn,
+            device,
+            len(df_dev)
+        )
 
-    # dev_acc, _ = eval_model(
-    #     model,
-    #     dev_data_loader,
-    #     loss_fn,
-    #     device,
-    #     len(df_dev)
-    # )
-    #
-    # print("result of evaluating model-accuracy of dev dataset:", dev_acc.item())
+        print(f'Val   loss {val_loss} accuracy {val_acc}')
+        print()
 
-    y_review_texts, y_pred, y_pred_probs, y_dev = get_predictions(
+        history['train_acc'].append(train_acc)
+        history['train_loss'].append(val_acc)
+        history['val_acc'].append(val_acc)
+        history['val_loss'].append(val_loss)
+
+        if val_acc > best_accuracy:
+            torch.save(model.state_dict(), 'best_model_state.bin')
+            best_accuracy = val_acc
+
+    y_review_texts, y_pred, y_pred_probs, y_test = get_predictions(
         model,
-        dev_data_loader
+        test_data_loader
     )
     y_pred = y_pred.cpu().detach().numpy()
 
     print("pred y_pred", y_pred)
-    print("pred y_dev", y_dev)
-    print(classification_report(y_dev, y_pred, target_names=class_names))
-
-    # # test model
-    # result = []
-    # f = open(test_path)
-    # data = json.load(f)
-    # for i in data:
-    #     dict = {}
-    #     review_text = i['text']
-    #     index = i['index']
-    #     encoded_review = tokenizer.encode_plus(
-    #         review_text,
-    #         max_length=MAX_LEN,
-    #         add_special_tokens=True,
-    #         return_token_type_ids=False,
-    #         pad_to_max_length=True,
-    #         return_attention_mask=True,
-    #         return_tensors='pt',
-    #     )
-    #
-    #     token_ids = encoded_review['input_ids'].to(device)
-    #     attention_mask = encoded_review['attention_mask'].to(device)
-    #
-    #     output = model(token_ids, attention_mask)
-    #
-    #     prediction_id = (output > 0.5).int().item()
-    #
-    #     prediction = class_names[prediction_id]
-    #     dict['index'] = index
-    #     dict['prediction'] = prediction
-    #     dict['prediction_id'] = prediction_id
-    #
-    #     result.append(dict)
-    # with open("submission.json", "w", encoding='utf-8') as f:
-    #     json.dump(result, f, ensure_ascii=False, indent=4)
+    print("pred y_dev", y_test)
+    print(classification_report(y_test, y_pred, target_names=class_names))
 
 
 if __name__ == '__main__':
