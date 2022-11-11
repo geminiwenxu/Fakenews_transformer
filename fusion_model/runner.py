@@ -10,10 +10,10 @@ from sklearn.metrics import classification_report
 from transformers import BertTokenizerFast
 from transformers import get_linear_schedule_with_warmup
 
-from classifier.bert_model import BertBinaryClassifier
-from classifier.prediction import get_predictions
-from classifier.prepare_data import create_data_loader
-from classifier.train import train_epoch, eval_model
+from baseline_model.bert_model import BertBinaryClassifier
+from baseline_model.prediction import get_predictions
+from baseline_model.prepare_data import create_data_loader
+from baseline_model.train import train_epoch, eval_model
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['human-written', 'machine-generated']
@@ -74,25 +74,25 @@ def main():
 
         print(f'Train loss {train_loss} accuracy {train_acc}')
 
-        # val_acc, val_loss = eval_model(
-        #     model,
-        #     dev_data_loader,
-        #     loss_fn,
-        #     device,
-        #     len(df_dev)
-        # )
-        #
-        # print(f'Val   loss {val_loss} accuracy {val_acc}')
-        # print()
-        #
-        # history['train_acc'].append(train_acc)
-        # history['train_loss'].append(val_acc)
-        # history['val_acc'].append(val_acc)
-        # history['val_loss'].append(val_loss)
-        #
-        # if val_acc > best_accuracy:
-        #     torch.save(model.state_dict(), 'best_model_state.bin')
-        #     best_accuracy = val_acc
+        val_acc, val_loss = eval_model(
+            model,
+            dev_data_loader,
+            loss_fn,
+            device,
+            len(df_dev)
+        )
+
+        print(f'Val   loss {val_loss} accuracy {val_acc}')
+        print()
+
+        history['train_acc'].append(train_acc)
+        history['train_loss'].append(val_acc)
+        history['val_acc'].append(val_acc)
+        history['val_loss'].append(val_loss)
+
+        if val_acc > best_accuracy:
+            torch.save(model.state_dict(), 'best_model_state.bin')
+            best_accuracy = val_acc
 
     # dev_acc, _ = eval_model(
     #     model,
@@ -113,40 +113,6 @@ def main():
     print("pred y_pred", y_pred)
     print("pred y_dev", y_dev)
     print(classification_report(y_dev, y_pred, target_names=class_names))
-
-    # test model
-    result = []
-    f = open(test_path)
-    data = json.load(f)
-    for i in data:
-        dict = {}
-        review_text = i['text']
-        index = i['index']
-        encoded_review = tokenizer.encode_plus(
-            review_text,
-            max_length=MAX_LEN,
-            add_special_tokens=True,
-            return_token_type_ids=False,
-            pad_to_max_length=True,
-            return_attention_mask=True,
-            return_tensors='pt',
-        )
-
-        token_ids = encoded_review['input_ids'].to(device)
-        attention_mask = encoded_review['attention_mask'].to(device)
-
-        output = model(token_ids, attention_mask)
-
-        prediction_id = (output > 0.5).int().item()
-
-        prediction = class_names[prediction_id]
-        dict['index'] = index
-        dict['prediction'] = prediction
-        dict['prediction_id'] = prediction_id
-
-        result.append(dict)
-    with open("submission.json", "w", encoding='utf-8') as f:
-        json.dump(result, f, ensure_ascii=False, indent=4)
 
 
 if __name__ == '__main__':
