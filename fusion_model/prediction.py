@@ -13,14 +13,13 @@ def get_predictions(model, data_loader):
 
     with torch.no_grad():
         for d in data_loader:
-            texts = d["review_text"]
-            input_ids = d["input_ids"].to(device)
-            attention_mask = d["attention_mask"].to(device)
-            targets = d["targets"].to(device)
+            sentences = d['sentences'].to(device)
+            feature_input = d['features'].to(device)
+            label = d['label'].to(device)
 
             outputs = model(
-                input_ids=input_ids,
-                attention_mask=attention_mask
+                sentences,
+                feature_input,
             )
 
             preds = (outputs > 0.45).float()
@@ -29,10 +28,10 @@ def get_predictions(model, data_loader):
 
             probs = outputs
 
-            review_texts.extend(texts)
+            review_texts.extend(sentences)
             predictions.extend(preds)
             prediction_probs.extend(probs)
-            real_values.extend(targets)
+            real_values.extend(label)
 
     predictions = torch.stack(predictions).cpu()
     prediction_probs = torch.stack(prediction_probs).cpu()
