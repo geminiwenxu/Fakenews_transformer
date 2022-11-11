@@ -31,7 +31,7 @@ class web_site():
 
 
 def get_hoax_sites():
-    hoax_urls = pd.read_json('GermanFakeNC.json').head(3)
+    hoax_urls = pd.read_json('GermanFakeNC.json')
     hoax_sites_classes = pd.read_csv('/Users/darialinke/Downloads/GermanFakeNC/Hoax Site, body and title class.txt', delimiter=';')
 
     # find respective class and title
@@ -54,11 +54,13 @@ def get_hoax_sites():
                     element.append(date)
                     element.append(title)
                     element.append(body)
-        texts.append(element)
+                    element.append('fake')
+                    element.append('0')
+                texts.append(element)
 
-    df_results = pd.DataFrame(texts, columns =['url', 'date', 'title', 'article'])
-    #f_results.to_csv(path_or_buf= '/Users/darialinke/Downloads/GermanFakeNC/fake_news.txt', sep= '¬')
-    df_results.to_json(path_or_buf='fake_news.json', force_ascii=False)
+    df_results = pd.DataFrame(texts, columns =['url', 'date', 'title', 'article', 'label','labelID'])
+    df_results = df_results[df_results['article'].isna() == False]
+    df_results.to_json(path_or_buf='fake_news.json', force_ascii=False, orient='records')
 
 def get_news_urls(date):
     url = "https://www.tagesschau.de/archiv/?datum=" + date
@@ -86,9 +88,9 @@ def get_dates_news_urls():
 def get_news_text():
     df_news_urls = pd.read_csv('news_urls.csv', delimiter=';', header=None, names=['URL','Date'])
     invalid_urls_ts = []
-    df_news_urls = df_news_urls.drop_duplicates()
+    df_news_urls = df_news_urls.drop_duplicates().sample(frac=1).reset_index(drop=True)
     texts = []
-    for ind in df_news_urls.iloc[:4,:].index:
+    for ind in df_news_urls.iloc[:200,:].index:
         element = []
         url = df_news_urls["URL"][ind]
         date = df_news_urls["Date"][ind]
@@ -102,14 +104,17 @@ def get_news_text():
             element.append(date)
             element.append(title)
             element.append(body)
+            element.append('true')
+            element.append('1')
         texts.append(element)
-    df_results = pd.DataFrame(texts, columns =['url','date','title', 'article'])
-    print(df_results)
-    df_results.to_json(path_or_buf= 'ts_news.json', force_ascii = False)
+    df_results = pd.DataFrame(texts, columns =['url', 'date', 'title', 'article', 'label','labelID'])
+    df_results.to_json(path_or_buf='true_news.json', force_ascii=False, orient='records')
+
 
 #get_hoax_sites()
 #get_news_text()
 
-df_news = hoax_urls = pd.read_json('fake_news.json')
-                  #    )
-print(df_news)
+pd_fake = pd.read_json('fake_news_1.json')
+pd_true = pd.read_json('true_news.json')
+df_all = pd.concat([pd_fake,pd_true.loc[:137,:]])
+df_all.to_json(path_or_buf='news_all.json', force_ascii=False, orient='records')
