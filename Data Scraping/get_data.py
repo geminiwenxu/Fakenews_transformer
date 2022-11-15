@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 class web_site():
@@ -110,11 +111,20 @@ def get_news_text():
     df_results = pd.DataFrame(texts, columns =['url', 'date', 'title', 'article', 'label','labelID'])
     df_results.to_json(path_or_buf='true_news.json', force_ascii=False, orient='records')
 
+if __name__ == "__main__":
+    '''
+    get_hoax_sites()
+    get_news_text()
+    pd_fake = pd.read_json('fake_news_1.json')
+    pd_true = pd.read_json('true_news.json')
+    df_all = pd.concat([pd_fake,pd_true.loc[:137,:]])
+    df_all.to_json(path_or_buf='news_all.json', force_ascii=False, orient='records')
+    '''
+    news = pd.read_json('news_all.json')
+    news = news.rename(columns={"labelID": "label_id", "article": "text"})
+    news_train, news_test, = train_test_split(news, test_size = 0.2, random_state = 42)
+    news_test, news_dev, = train_test_split(news_test, test_size=0.5, random_state=42)
 
-#get_hoax_sites()
-#get_news_text()
-
-pd_fake = pd.read_json('fake_news_1.json')
-pd_true = pd.read_json('true_news.json')
-df_all = pd.concat([pd_fake,pd_true.loc[:137,:]])
-df_all.to_json(path_or_buf='news_all.json', force_ascii=False, orient='records')
+    news_train.to_json(path_or_buf='news_train.json', force_ascii=False, orient='records')
+    news_test.to_json(path_or_buf='news_test.json', force_ascii=False, orient='records')
+    news_dev.to_json(path_or_buf='news_dev.json', force_ascii=False, orient='records')
