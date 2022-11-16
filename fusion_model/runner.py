@@ -1,4 +1,3 @@
-import json
 from collections import defaultdict
 
 import pandas as pd
@@ -10,7 +9,7 @@ from sklearn.metrics import classification_report
 from transformers import BertTokenizerFast
 from transformers import get_linear_schedule_with_warmup
 
-from baseline_model.bert_model import BertBinaryClassifier
+from fusion_model.models import FakeNewsBinaryModel
 from baseline_model.prediction import get_predictions
 from baseline_model.prepare_data import create_data_loader
 from baseline_model.train import train_epoch, eval_model
@@ -19,7 +18,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['human-written', 'machine-generated']
 tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', do_lower_case=True)
 
-model = BertBinaryClassifier()
+model = FakeNewsBinaryModel ()
 model.to(device)
 
 MAX_LEN = 160
@@ -93,16 +92,6 @@ def main():
         if val_acc > best_accuracy:
             torch.save(model.state_dict(), 'best_model_state.bin')
             best_accuracy = val_acc
-
-    # dev_acc, _ = eval_model(
-    #     model,
-    #     dev_data_loader,
-    #     loss_fn,
-    #     device,
-    #     len(df_dev)
-    # )
-    #
-    # print("result of evaluating model-accuracy of dev dataset:", dev_acc.item())
 
     y_review_texts, y_pred, y_pred_probs, y_dev = get_predictions(
         model,
