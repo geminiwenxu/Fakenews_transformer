@@ -1,11 +1,8 @@
-file_path:
-  path: /plaintext_dataset/
-
 train:
-  path: /../data/train_test.json
+  path: /../data/news_train.json
 
 dev:
-  path: /../data/dev_test.json
+  path: /../data/news_dev.json
 
 test:
-  path: /../data/test_test.json
+  path: /../data/news_test.json
