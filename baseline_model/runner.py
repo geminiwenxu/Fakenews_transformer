@@ -6,7 +6,7 @@ import torch.nn as nn
 import yaml
 from pkg_resources import resource_filename
 from sklearn.metrics import classification_report
-from transformers import BertTokenizerFast
+from transformers import AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from baseline_model.bert_model import BertBinaryClassifier
@@ -15,8 +15,8 @@ from baseline_model.prepare_data import create_data_loader
 from baseline_model.train import train_epoch, eval_model
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-class_names = ['human-written', 'machine-generated']
-tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', do_lower_case=True)
+class_names = ['real', 'fake']
+tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=True)
 
 model = BertBinaryClassifier()
 model.to(device)
