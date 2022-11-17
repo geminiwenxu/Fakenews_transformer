@@ -1,5 +1,5 @@
 import torch
-
+import ast
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -17,10 +17,20 @@ def get_predictions(model, data_loader):
             input_ids = d["input_ids"].to(device)
             attention_mask = d["attention_mask"].to(device)
             targets = d["targets"].to(torch.float32).to(device)
+            feature_input = d["feature_input"]
+
+            y = []
+            for i in feature_input:
+                x = ast.literal_eval(i)
+                y.append(x)
+            feature_input = torch.tensor(y).to(torch.float32)
+            print(input_ids.size(), attention_mask.size(), targets.size())
+            print("the input", feature_input, type(feature_input), feature_input.size())
 
             outputs = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
+                feature_inputs=feature_input,
             )
 
             preds = (outputs > 0.45).float()

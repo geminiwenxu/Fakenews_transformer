@@ -39,11 +39,11 @@ df_train = pd.read_json(train_path)
 df_dev = pd.read_json(dev_path)
 df_test = pd.read_json(test_path)
 
-train_data_loader, train_dim = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
-dev_data_loader, dev_dim = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
-test_data_loader, test_dim = create_data_loader(df_test, tokenizer, MAX_LEN, BATCH_SIZE)
+train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
+dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
+test_data_loader = create_data_loader(df_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
-model = FakeNewsBinaryModel(train_dim)
+model = FakeNewsBinaryModel()
 model.to(device)
 EPOCHS = 1
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)

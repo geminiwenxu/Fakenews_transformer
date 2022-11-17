@@ -1,3 +1,5 @@
+import ast
+
 import numpy as np
 import torch
 
@@ -17,17 +19,24 @@ def train_epoch(
     correct_predictions = 0
 
     for d in data_loader:
+        print(d)
         input_ids = d["input_ids"].to(device)
         attention_mask = d["attention_mask"].to(device)
         targets = d["targets"].to(torch.float32).to(device)
         re_targets = targets.reshape(len(targets), 1)
         re_targets = re_targets.to(torch.float32)
-        feature_input = None
-
+        feature_input = d["feature_input"]
+        y = []
+        for i in feature_input:
+            x = ast.literal_eval(i)
+            y.append(x)
+        feature_input = torch.tensor(y).to(torch.float32)
+        print(input_ids.size(), attention_mask.size(), targets.size())
+        print("the input", feature_input, type(feature_input), feature_input.size())
         outputs = model(
             input_ids=input_ids,
             attention_mask=attention_mask,
-            # feature_inputs=feature_input,
+            feature_inputs=feature_input,
         )
         # print("the final outputs:" ,outputs, outputs.size())
         # print(re_targets, re_targets.size())
@@ -58,19 +67,25 @@ def eval_model(model, data_loader, loss_fn, device, n_examples):
 
     with torch.no_grad():
         for d in data_loader:
-            print(d)
+            # print(d)
             input_ids = d["input_ids"].to(device)
             attention_mask = d["attention_mask"].to(device)
             targets = d["targets"].to(torch.float32).to(device)
             re_targets = targets.reshape(len(targets), 1)
             re_targets = re_targets.to(torch.float32)
-            feature_input = None
-            print('target', targets)
+            feature_input = d["feature_input"]
+            y = []
+            for i in feature_input:
+                x = ast.literal_eval(i)
+                y.append(x)
+            feature_input = torch.tensor(y).to(torch.float32)
+            print(input_ids.size(), attention_mask.size(), targets.size())
+            print("the input", feature_input, type(feature_input), feature_input.size())
 
             outputs = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
-                # feature_input=None
+                feature_inputs=feature_input,
             )
             preds = (outputs > 0.45).float()
             loss = loss_fn(outputs, targets)

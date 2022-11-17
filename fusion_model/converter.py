@@ -22,15 +22,14 @@ class FeatureConverter(nn.Module):
 
     def forward(self, feature_input):
         hidden_output = self.layer1(feature_input)
-        return self.layer2(hidden_output)
+        return self.layer2(hidden_output).flatten()
 
 
 class DenseConverter(nn.Module):
-    def __init__(self, output_dim):
-        self.output_dim = output_dim
-        super(DenseConverter, self).__init__(self.output_dim)
-        self.layer1 = nn.Linear(800, 64)
-        self.layer2 = nn.Linear(64, self.output_dim)
+    def __init__(self):
+        super(DenseConverter, self).__init__()
+        self.layer1 = nn.Linear(832, 64)
+        self.layer2 = nn.Linear(64, 2)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, joint_embedding):
