@@ -23,7 +23,7 @@ def get_predictions(model, data_loader):
             for i in feature_input:
                 x = ast.literal_eval(i)
                 y.append(x)
-            feature_input = torch.tensor(y).to(torch.float32)
+            feature_input = torch.tensor(y).to(torch.float32).to(device)
             print(input_ids.size(), attention_mask.size(), targets.size())
             print("the input", feature_input, type(feature_input), feature_input.size())
 
