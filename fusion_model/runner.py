@@ -6,23 +6,22 @@ import torch.nn as nn
 import yaml
 from pkg_resources import resource_filename
 from sklearn.metrics import classification_report
-from transformers import BertTokenizerFast
+from transformers import AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from fusion_model.models import FakeNewsBinaryModel
-from baseline_model.prediction import get_predictions
-from baseline_model.prepare_data import create_data_loader
-from baseline_model.train import train_epoch, eval_model
+from fusion_model.prediction import get_predictions
+from fusion_model.prepare_data import create_data_loader
+from fusion_model.train import train_epoch, eval_model
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-class_names = ['human-written', 'machine-generated']
-tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased', do_lower_case=True)
+class_names = ['real', 'fake']
+tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=True)
 
-model = FakeNewsBinaryModel ()
-model.to(device)
+
 
 MAX_LEN = 160
-BATCH_SIZE = 16
+BATCH_SIZE = 2
 
 
 def get_config(path):
@@ -38,10 +37,14 @@ test_path = resource_filename(__name__, config['test']['path'])
 
 df_train = pd.read_json(train_path)
 df_dev = pd.read_json(dev_path)
+df_test = pd.read_json(test_path)
 
-train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
-dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
+train_data_loader, train_dim = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
+dev_data_loader, dev_dim = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
+test_data_loader, test_dim = create_data_loader(df_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
+model = FakeNewsBinaryModel(train_dim)
+model.to(device)
 EPOCHS = 1
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 total_steps = len(train_data_loader) * EPOCHS
@@ -95,7 +98,7 @@ def main():
 
     y_review_texts, y_pred, y_pred_probs, y_dev = get_predictions(
         model,
-        dev_data_loader
+        test_data_loader
     )
     y_pred = y_pred.cpu().detach().numpy()
 

@@ -15,5 +15,7 @@ class BertBinaryClassifier(nn.Module):
                                      attention_mask=attention_mask, return_dict=False)
         drop_output = self.drop(pooled_output)
         linearoutput = self.out(drop_output)
+        print(linearoutput)
         prob = self.sigmoid(linearoutput)
+        print(prob)
         return prob

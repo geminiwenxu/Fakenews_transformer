@@ -1,8 +1,8 @@
 train:
-  path: /../data/news_train.json
+  path: /../data/train_test.json
 
 dev:
-  path: /../data/news_dev.json
+  path: /../data/dev_test.json
 
 test:
-  path: /../data/news_test.json
+  path: /../data/test_test.json
