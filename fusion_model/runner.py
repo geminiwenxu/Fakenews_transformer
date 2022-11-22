@@ -43,7 +43,7 @@ train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
 dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
 test_data_loader = create_data_loader(df_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
-model = FakeNewsBinaryModel()
+model = FakeNewsBinaryModel(batch_size=BATCH_SIZE)
 model.to(device)
 EPOCHS = 1
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
