@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from converter import BertConverter, FeatureConverter, DenseConverter
+from fusion_techniques import concatenate
 
 
 class FakeNewsBinaryModel(nn.Module):
@@ -17,7 +18,7 @@ class FakeNewsBinaryModel(nn.Module):
         print(feature_input)
         feature_embedding = self.feature_converter.forward(feature_input['feature_inputs'])
         print('feature_embedding', feature_embedding.size())
-        joint_embedding = torch.cat((bert_embedding, feature_embedding), dim=0)
+        joint_embedding = concatenate(bert_embedding, feature_embedding)
         print('joint', joint_embedding.size())
         prob = self.dense_converter(joint_embedding)
         print('outputs of model', prob)

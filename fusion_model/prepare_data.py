@@ -47,10 +47,10 @@ def create_data_loader(df, tokenizer, max_len, batch_size):
         max_len=max_len,
         feature_input=df.feature_input
     )
-    # print("check the size",len(ds.targets))
     return DataLoader(
         ds,
         batch_size=batch_size,
-        num_workers=1
+        num_workers=1,
+        drop_last=True
     )
 
