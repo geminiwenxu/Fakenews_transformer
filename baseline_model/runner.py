@@ -10,6 +10,7 @@ from transformers import AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from baseline_model.bert_model import BertBinaryClassifier
+from baseline_model.plot import plot
 from baseline_model.prediction import get_predictions
 from baseline_model.prepare_data import create_data_loader
 from baseline_model.train import train_epoch, eval_model
@@ -95,6 +96,8 @@ def main():
             torch.save(model.state_dict(), 'best_model_state.bin')
             best_accuracy = val_acc
 
+    plot(history)
+
     y_review_texts, y_pred, y_pred_probs, y_test = get_predictions(
         model,
         test_data_loader
@@ -104,6 +107,10 @@ def main():
     print("pred y_pred", y_pred)
     print("pred y_dev", y_test)
     print(classification_report(y_test, y_pred, target_names=class_names))
+
+    # cm = confusion_matrix(y_test, y_pred)
+    # df_cm = pd.DataFrame(cm, index=class_names, columns=class_names)
+    # show_confusion_matrix(df_cm)
 
 
 if __name__ == '__main__':
