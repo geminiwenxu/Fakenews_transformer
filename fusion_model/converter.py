@@ -12,6 +12,7 @@ class BertConverter:
     def forward(self, input_ids, attention_mask):
         bert_results = self.model(input_ids, attention_mask)
         #print(self.model.training)
+        # print("attention!!!!!",bert_results.last_hidden_state.size())
         return bert_results.last_hidden_state[0, 0, :].detach().cpu().numpy().tolist()  # return the cls embedding
 
 
@@ -33,11 +34,13 @@ class DenseConverter(nn.Module):
         self.batch_size = batch_size
         self.layer1 = nn.Linear(768+self.batch_size*32, 64)
         self.layer2 = nn.Linear(64, self.batch_size)
+        self.drop = nn.Dropout(p=0.3)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, joint_embedding):
         hidden_output = self.layer1(joint_embedding)
         hidden_output2 = self.layer2(hidden_output)
-        prob = self.sigmoid(hidden_output2)
+        drop_output = self.drop(hidden_output2)
+        prob = self.sigmoid(drop_output)
         #print(self.training)
         return prob
