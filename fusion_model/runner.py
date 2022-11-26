@@ -10,6 +10,7 @@ from transformers import AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from fusion_model.models import FakeNewsBinaryModel
+from fusion_model.plot import plot
 from fusion_model.prediction import get_predictions
 from fusion_model.prepare_data import create_data_loader
 from fusion_model.train import train_epoch, eval_model
@@ -17,8 +18,6 @@ from fusion_model.train import train_epoch, eval_model
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['real', 'fake']
 tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=True)
-
-
 
 MAX_LEN = 160
 BATCH_SIZE = 2
@@ -45,7 +44,7 @@ test_data_loader = create_data_loader(df_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
 model = FakeNewsBinaryModel(batch_size=BATCH_SIZE)
 model.to(device)
-EPOCHS = 1
+EPOCHS = 5
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 total_steps = len(train_data_loader) * EPOCHS
 scheduler = get_linear_schedule_with_warmup(
@@ -95,7 +94,7 @@ def main():
         if val_acc > best_accuracy:
             torch.save(model.state_dict(), 'best_model_state.bin')
             best_accuracy = val_acc
-
+    plot(history)
     y_review_texts, y_pred, y_pred_probs, y_dev = get_predictions(
         model,
         test_data_loader
