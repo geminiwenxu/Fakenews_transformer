@@ -29,16 +29,6 @@ def comparison(type_news):
     pickle.dump(get_unique_words(text.replace('\t','').replace("\xad",'')), open(type_news + ".p", "wb" ))
 
 
-#comparison('fake')
-#comparison('true')
-
-#fake = pickle.load(open( "fake.p", "rb" ))
-#true = pickle.load(open( "true.p", "rb" ))
-#fake = fake[fake['count']>5]
-
-#diffs = list(set(fake['token'].values.tolist()) - set(true['token'].values.tolist()))
-#print(diffs)
-
 def get_dict_from_SentiWs(type):
     df_raw = pd.read_csv('./SentiWS_v2/SentiWS_v2.0_'+type+'.txt', sep='\t', header=None, names = ['word','value','flek'])
     df_raw['word'] = df_raw['word'].apply(lambda x: re.sub('\|[A-Z]+', '', x))
@@ -58,20 +48,26 @@ def get_dict_from_SentiWs(type):
 
     pickle.dump(dict_all, open( 'dict'+type+'.p', "wb" ) )
 
-#get_dict_from_SentiWs('Positive')
-#get_dict_from_SentiWs('Negative')
 
-#dict_positive = pickle.load(open("dictPositive.p", "rb"))
-#print(dict_positive.get('schöner', 0))
+if __name__ == "__main__":
 
-nlp = spacy.load('de_core_news_sm')
-doc = nlp("Er ist ein Student. Meine Onkel kocht")
-for t in doc:
-    print(t.tag_)
-    print(t.lemma_)
-#nouns = [t for t in doc if t.pos_ == 'ADJ']
-#print(nouns)
-#mein, dein, deine, unser
-#ich, du, wir, ihr
+     ### get words which are often used in fake but never in true news and add them to keywords list
+    comparison('fake')
+    comparison('true')
 
+    fake = pickle.load(open( "fake.p", "rb" ))
+    true = pickle.load(open( "true.p", "rb" ))
+    fake = fake[fake['count']>5]
+
+    diffs = list(set(fake['token'].values.tolist()) - set(true['token'].values.tolist()))
+    print(diffs)
+
+
+    ############################################ Extraction from SentiWs
+    # process the SentiWs file to dictioanary for emotional value look up
+    get_dict_from_SentiWs('Positive')
+    get_dict_from_SentiWs('Negative')
+
+    #dict_positive = pickle.load(open("dictPositive.p", "rb"))
+    #print(dict_positive.get('schöner', 0))
 
