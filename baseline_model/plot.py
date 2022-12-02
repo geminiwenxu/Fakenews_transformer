@@ -11,7 +11,7 @@ def plot(history):
     plt.xlabel('Epoch')
     plt.legend()
     plt.ylim([0, 1.5])
-    plt.tight_layout(pad=5.0)
+
     plt.subplot(1, 2, 2)
     plt.plot(torch.tensor(history['train_loss']).cpu(), color='b', label='train loss')
     plt.plot(torch.tensor(history['val_loss']).cpu(), color='c', label='validation loss')
@@ -20,4 +20,5 @@ def plot(history):
     plt.xlabel('Epoch')
     plt.legend()
     plt.ylim([0, 1.5])
+    plt.tight_layout()
     plt.savefig("baseline_model.png")

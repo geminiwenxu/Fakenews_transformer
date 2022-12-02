@@ -45,7 +45,7 @@ train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
 dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
 test_data_loader = create_data_loader(df_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
-EPOCHS = 5
+EPOCHS = 20
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 total_steps = len(train_data_loader) * EPOCHS
 scheduler = get_linear_schedule_with_warmup(

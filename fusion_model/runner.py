@@ -10,7 +10,7 @@ from transformers import AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from fusion_model.models import FakeNewsBinaryModel
-from fusion_model.plot import plot
+from baseline_model.plot import plot
 from fusion_model.prediction import get_predictions
 from fusion_model.prepare_data import create_data_loader
 from fusion_model.train import train_epoch, eval_model
