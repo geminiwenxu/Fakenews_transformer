@@ -20,6 +20,11 @@ def get_unique_words(text):
 
 
 def comparison(type_news):
+    """
+    comparison of used words in true news and fake news
+    :param type_news:
+    :return:
+    """
     if type_news == 'fake':
         news = pd.read_json('/Users/darialinke/PycharmProjects/Fakenews_transformer/Data Scraping/fake_news.json')
     else:
@@ -30,6 +35,11 @@ def comparison(type_news):
 
 
 def get_dict_from_SentiWs(type):
+    """
+    converts SentiWs file to dict with emotion values and contains all word forms
+    :param type: positive or negative
+    :return: pickled dict
+    """
     df_raw = pd.read_csv('./SentiWS_v2/SentiWS_v2.0_'+type+'.txt', sep='\t', header=None, names = ['word','value','flek'])
     df_raw['word'] = df_raw['word'].apply(lambda x: re.sub('\|[A-Z]+', '', x))
     df_lexem = df_raw.drop(['flek'], axis=1)

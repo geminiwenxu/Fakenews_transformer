@@ -262,5 +262,6 @@ if __name__ == "__main__":
     feats_headline = headline('hier ist eine Überschrift?!!!')
     print(feats_headline.return_results())
 
-    feats_all = feats_article.return_results()+feats_headline.return_results()
+    feats_all = feats_article.return_results()+\
+                feats_headline.return_results()
     print(feats_all)
