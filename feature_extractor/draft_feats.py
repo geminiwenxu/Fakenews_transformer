@@ -8,8 +8,10 @@ from transformers import pipeline
 
 
 class article():
-    def __init__(self, raw_text, dict_positive, dict_negative, keywords, dict_arousal, toxicity_pipeline):
+    def __init__(self, raw_text, dict_positive, dict_negative, keywords, dict_arousal,
+                 toxicity_pipeline, nlp):
         self.raw_text = raw_text
+        self.nlp = nlp
         self.toxicity_pipeline = toxicity_pipeline
         self.dict_positive = dict_positive
         self.dict_negative = dict_negative
@@ -33,18 +35,17 @@ class article():
         self.exclamation = self.get_exclamation()
         self.personal = self.get_personal()
         self.hate = self.get_hate_score()
-        self.negations = None   #ToDo this is important, bc fake used more negations than news -> BERT maybe?
+        self.negations = self.count_negations()
 
 
     def to_spacy(self):
-        nlp = spacy.load('de_core_news_sm')
-        doc = nlp(self.text)
+        doc = self.nlp(self.text)
         return doc
 
 
     def preproces(self):
         text = re.sub(r'http\S+|{link}|\[video\]|@\S*|#\S*', '',
-                           self.raw_text.replace('\t', '').replace("\xad", ''))
+                           self.raw_text.replace('\t', '').replace("\xad", '').replace("\n", ''))
         return text
 
     def get_positive_words(self):
@@ -172,11 +173,15 @@ class article():
             hate_score = result['score']
         return hate_score
 
+    def count_negations(self):
+        neg_pattern = r"(kein|nie|weder|ohne|nicht)."
+        return len(re.findall(neg_pattern, self.text))
+
 
     def return_results(self):
         results = [self.num_chars, self.num_words, self.positive, self.negative, self.nouns,
                    self.adjectives, self.arousal, self.count_keywords, self.numbers, self.ner,
-                   self.oov,self.personal,self.hate, self.question, self.exclamation]
+                   self.oov,self.personal,self.hate, self.question, self.exclamation, self.negations]
         return [0 if i is None else i for i in results]
 
 class headline():
@@ -239,7 +244,7 @@ class headline():
 
 
 if __name__ == "__main__":
-
+    nlp = spacy.load('de_core_news_lg')
     # get dictionaries for positive, negative and arousal words
     # load keyword list
     dict_positive = pickle.load(open("dictPositive.p", "rb"))
@@ -253,15 +258,17 @@ if __name__ == "__main__":
     model_name = 'ml6team/distilbert-base-german-cased-toxic-comments'
     toxicity_pipeline = pipeline('text-classification', model=model_name, tokenizer=model_name)
 
+    #ToDo here should start the loop
     feats_article = article(raw_text='Hier ist ein schön TExt. Und hier noch ein Satz. Das ist wütender Junge.',
                 dict_positive=dict_positive, dict_negative=dict_negative, keywords=keywords,
-                dict_arousal=dict_arousal, toxicity_pipeline=toxicity_pipeline
+                dict_arousal=dict_arousal, toxicity_pipeline=toxicity_pipeline, nlp=nlp
                 )
     print(feats_article.return_results())
 
     feats_headline = headline('hier ist eine Überschrift?!!!')
     print(feats_headline.return_results())
 
-    feats_all = feats_article.return_results()+\
-                feats_headline.return_results()
+
+    feats_all = feats_article.return_results() + feats_headline.return_results()
+
     print(feats_all)
