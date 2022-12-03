@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 import pandas as pd
 from sklearn.model_selection import train_test_split
-
+import os
 
 class web_site():
     def __init__(self, url, class_title, class_article):
@@ -31,9 +31,8 @@ class web_site():
             return None, None
 
 
-def get_hoax_sites():
-    hoax_urls = pd.read_json('GermanFakeNC.json')
-    hoax_sites_classes = pd.read_csv('/Users/darialinke/Downloads/GermanFakeNC/Hoax Site, body and title class.txt', delimiter=';')
+def get_hoax_sites(hoax_urls):
+    hoax_sites_classes = pd.read_csv('Hoax Site, body and title class.txt', delimiter=';')
 
     # find respective class and title
     invalid_urls = []
@@ -61,7 +60,7 @@ def get_hoax_sites():
 
     df_results = pd.DataFrame(texts, columns =['url', 'date', 'title', 'article', 'label','labelID'])
     df_results = df_results[df_results['article'].isna() == False]
-    df_results.to_json(path_or_buf='fake_news.json', force_ascii=False, orient='records')
+    df_results.to_json(path_or_buf='fake_news_correctiv.json', force_ascii=False, orient='records')
 
 def get_news_urls(date):
     url = "https://www.tagesschau.de/archiv/?datum=" + date
@@ -71,16 +70,21 @@ def get_news_urls(date):
     links = soup.find_all(class_='teaser-xs__link')
     not_news_list = ['de/kommentar/', 'de/faktenfinder/', 'de/investigativ/', 'de/wissen/', 'de/multimedia/']
     list_urls = []
+    number_urls = 0
     for link in links:
         if not any(elem in link['href'] for elem in not_news_list):
             list_urls.append(link['href'])
+            number_urls+=1
+            if number_urls>5:
+                break
     list_dates = [date] * len(list_urls)
     df_news_sites = pd.DataFrame(list(zip(list_urls, list_dates)), columns=['URL', 'Date'])
     df_news_sites.to_csv(path_or_buf='news_urls.csv', sep=';', mode='a', header=False, index=False)
 
 
 def get_dates_news_urls():
-    hoax_urls = pd.read_json('GermanFakeNC.json')
+    #hoax_urls = pd.read_json('GermanFakeNC.json')
+    hoax_urls = pd.read_csv('correctiv_fakes.csv', delimiter=';')
     dates = [str(i.date()) for i in pd.to_datetime(hoax_urls['Date'].unique())]
     for date in dates:
         get_news_urls(date)
@@ -91,7 +95,7 @@ def get_news_text():
     invalid_urls_ts = []
     df_news_urls = df_news_urls.drop_duplicates().sample(frac=1).reset_index(drop=True)
     texts = []
-    for ind in df_news_urls.iloc[:200,:].index:
+    for ind in df_news_urls.iloc[:,:].index:
         element = []
         url = df_news_urls["URL"][ind]
         date = df_news_urls["Date"][ind]
@@ -109,11 +113,13 @@ def get_news_text():
             element.append('1')
         texts.append(element)
     df_results = pd.DataFrame(texts, columns =['url', 'date', 'title', 'article', 'label','labelID'])
-    df_results.to_json(path_or_buf='true_news.json', force_ascii=False, orient='records')
+    df_results.to_json(path_or_buf='true_news_correctiv.json', force_ascii=False, orient='records')
 
 if __name__ == "__main__":
     '''
-    get_hoax_sites()
+    hoax_urls = pd.read_json('GermanFakeNC.json')
+    hoax_urls = pd.read_csv('correctiv_fakes.csv', delimiter=';')
+    get_hoax_sites(hoax_urls)
     get_news_text()
     pd_fake = pd.read_json('fake_news_1.json')
     pd_true = pd.read_json('true_news.json')
@@ -122,9 +128,27 @@ if __name__ == "__main__":
     '''
     news = pd.read_json('news_all.json')
     news = news.rename(columns={"labelID": "label_id", "article": "text"})
+
+    # combine with corrective
+    pd_fake = pd.read_json('fake_news_correctiv.json')
+    pd_fake = pd_fake.rename(columns={"labelID": "label_id", "article": "text"})
+    pd_fake['label_id'] = 0
+    pd_true = pd.read_json('true_news_correctiv.json')
+    pd_true = pd_true.rename(columns={"labelID": "label_id", "article": "text"})
+    df_scrapped = pd.concat([pd_fake, pd_true, news])
+    df_scrapped.dropna(inplace=True)
+
+    #combine with fang
+    df_fang = pd.read_json('fang_processed.json')
+    df_all = pd.concat([df_scrapped, df_fang])
+    #dublicates possible, find them
+    df_all = df_all.drop_duplicates(subset='text', keep="first")
+
     news_train, news_test, = train_test_split(news, test_size = 0.2, random_state = 42)
     news_test, news_dev, = train_test_split(news_test, test_size=0.5, random_state=42)
 
-    news_train.to_json(path_or_buf='news_train.json', force_ascii=False, orient='records')
-    news_test.to_json(path_or_buf='news_test.json', force_ascii=False, orient='records')
-    news_dev.to_json(path_or_buf='news_dev.json', force_ascii=False, orient='records')
+    news_train.to_json(path_or_buf='news_train_new.json', force_ascii=False, orient='records')
+    news_test.to_json(path_or_buf='news_test_new.json', force_ascii=False, orient='records')
+    news_dev.to_json(path_or_buf='news_dev_new.json', force_ascii=False, orient='records')
+    #
+

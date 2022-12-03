@@ -22,3 +22,31 @@ https://www.labournet.de;blog-single-content;title
 https://www.wsws.org;content georgia _avenir f5 f4-m f4-l f5-p lh-copy _measure-wide;title
 https://www.zeitenschrift.com;small-24 medium-17 columns;current
 https://perspektive-online.net;td-post-content tagdiv-type;title
+https://apolut.net;col-md-8 mx-auto single-post-content;title
+https://www.anti-spiegel.ru;article__content;article-meta__title
+https://exxpress.at;article-body wpb_column vc_column_container vc_col-sm-6;vc_custom_heading article-heading
+https://unser-mitteleuropa.com;td-post-content tagdiv-type;title
+https://ansage.org;td-post-content tagdiv-type;title
+https://www.wochenblick.at;elementor-widget-container;title
+https://www.news.de;articleContent__main;title
+https://overton-magazin.de;entry-content;title
+https://report24.news;elementor-widget-container;title
+https://gloria.tv;statement tile;title
+https://tkp.at;fusion-content-tb fusion-content-tb-1;title
+https://www.achgut.com;artikeltext;title
+https://deutschlandkurier.de;tdb-block-inner td-fix-index;title
+https://reitschuster.de;elementor-widget-container;title
+https://corona-transition.org;article-main-content crayon article-texte-11552;title
+https://www.presseportal.de;card;title
+https://2020news.de;tdb-block-inner td-fix-index;title
+https://corona-blog.net;wp-block-getwid-section__inner-content;title
+https://www.zentrum-der-gesundheit.de;bg-white sm:rounded-md p-6;title
+https://uncutnews.ch;elementor-widget-container;title
+https://freeworldnews.us;s-post-content s-post-small-el bb-mb-el;title
+https://www.freiewelt.net;single-page-article;title
+
+
+
+
+
+
