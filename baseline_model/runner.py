@@ -45,7 +45,7 @@ train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
 dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
 test_data_loader = create_data_loader(df_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
-EPOCHS = 20
+EPOCHS = 5
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 total_steps = len(train_data_loader) * EPOCHS
 scheduler = get_linear_schedule_with_warmup(
@@ -105,12 +105,8 @@ def main():
     y_pred = y_pred.cpu().detach().numpy()
 
     print("pred y_pred", y_pred)
-    print("pred y_dev", y_test)
+    print("pred y_test", y_test)
     print(classification_report(y_test, y_pred, target_names=class_names))
-
-    # cm = confusion_matrix(y_test, y_pred)
-    # df_cm = pd.DataFrame(cm, index=class_names, columns=class_names)
-    # show_confusion_matrix(df_cm)
 
 
 if __name__ == '__main__':

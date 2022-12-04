@@ -28,8 +28,8 @@ def train_epoch(
             input_ids=input_ids,
             attention_mask=attention_mask
         )
-
-        preds = (outputs > 0.45).float()
+        print(re_targets)
+        preds = (outputs > 0.5).float()
         loss = loss_fn(outputs, re_targets)
         correct_predictions += torch.sum(preds == re_targets)
         # print("train outputs", outputs)

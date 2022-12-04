@@ -23,9 +23,9 @@ def get_predictions(model, data_loader):
                 attention_mask=attention_mask
             )
 
-            preds = (outputs > 0.45).float()
-            # print("pred outputs", outputs)
-            # print("preds", preds)
+            preds = (outputs > 0.5).float()
+            print("pred outputs", outputs)
+            print("preds", preds)
 
             probs = outputs
 
