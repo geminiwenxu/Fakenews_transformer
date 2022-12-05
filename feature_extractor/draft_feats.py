@@ -1,13 +1,13 @@
+import pickle
+import re
+
 import numpy as np
 import pandas as pd
 import spacy
-import re
-import pickle
 from transformers import pipeline
 
 
-
-class article():
+class Article():
     def __init__(self, raw_text, dict_positive, dict_negative, keywords, dict_arousal,
                  toxicity_pipeline, nlp):
         self.raw_text = raw_text
@@ -21,7 +21,7 @@ class article():
         self.doc = self.to_spacy()
         self.num_chars = self.get_word_len()
         self.num_words = self.get_sent_len()
-        #self.num_clauses = None
+        # self.num_clauses = None
         self.positive = self.get_positive_words()
         self.negative = self.get_negative_words()
         self.nouns = self.get_no_nouns()
@@ -37,15 +37,13 @@ class article():
         self.hate = self.get_hate_score()
         self.negations = self.count_negations()
 
-
     def to_spacy(self):
         doc = self.nlp(self.text)
         return doc
 
-
     def preproces(self):
         text = re.sub(r'http\S+|{link}|\[video\]|@\S*|#\S*', '',
-                           self.raw_text.replace('\t', '').replace("\xad", '').replace("\n", ''))
+                      self.raw_text.replace('\t', '').replace("\xad", '').replace("\n", ''))
         return text
 
     def get_positive_words(self):
@@ -55,7 +53,7 @@ class article():
         positive = 0
         for t in self.doc:
             if t.is_stop is False and t.is_space is False:
-                positive+=self.dict_positive.get(t.text.lower(), 0)
+                positive += self.dict_positive.get(t.text.lower(), 0)
         return positive
 
     def get_negative_words(self):
@@ -65,7 +63,7 @@ class article():
         negative = 0
         for t in self.doc:
             if t.is_stop is False and t.is_space is False:
-                negative+=self.dict_negative.get(t.text.lower(), 0)
+                negative += self.dict_negative.get(t.text.lower(), 0)
         return negative
 
     def get_arousive_words(self):
@@ -75,7 +73,7 @@ class article():
         arousal = 0
         for t in self.doc:
             if t.is_stop is False and t.is_space is False:
-                arousal+=self.dict_arousal.get(t.lemma_.lower(), 0)
+                arousal += self.dict_arousal.get(t.lemma_.lower(), 0)
         return arousal
 
     def get_count_keywords(self):
@@ -86,7 +84,7 @@ class article():
         k_count = 0
         for t in self.doc:
             if t.is_stop is False and t.is_space is False:
-                if (t.text.lower() in self.keywords):k_count+=1
+                if (t.text.lower() in self.keywords): k_count += 1
         return k_count
 
     def get_word_len(self):
@@ -159,8 +157,8 @@ class article():
         :return: returns number of times personal pronouns were used
         """
         personal = [t for t in self.doc if t.tag_ in ['PPOSAT', 'PPER'] and
-               t.lemma_.lower() in ['mein', 'dein', 'deine', 'unser', 'unseren', 'ich', 'du', 'wir', 'ihr', 'mir',
-                                    'dir', 'euch', 'uns', 'dich', 'mich', 'euch', 'uns']]
+                    t.lemma_.lower() in ['mein', 'dein', 'deine', 'unser', 'unseren', 'ich', 'du', 'wir', 'ihr', 'mir',
+                                         'dir', 'euch', 'uns', 'dich', 'mich', 'euch', 'uns']]
         print(len(personal))
 
     def get_hate_score(self):
@@ -177,16 +175,17 @@ class article():
         neg_pattern = r"(kein|nie|weder|ohne|nicht)."
         return len(re.findall(neg_pattern, self.text))
 
-
     def return_results(self):
         results = [self.num_chars, self.num_words, self.positive, self.negative, self.nouns,
                    self.adjectives, self.arousal, self.count_keywords, self.numbers, self.ner,
-                   self.oov,self.personal,self.hate, self.question, self.exclamation, self.negations]
+                   self.oov, self.personal, self.hate, self.question, self.exclamation, self.negations]
         return [0 if i is None else i for i in results]
 
-class headline():
-    def __init__(self, raw_text):
+
+class Headline():
+    def __init__(self, raw_text, nlp):
         self.raw_text = raw_text
+        self.nlp = nlp
         self.text = self.preproces()
         self.doc = self.to_spacy()
         self.num_words = self.get_word_len()
@@ -195,17 +194,17 @@ class headline():
         self.count_cap = self.get_no_capital()
 
     def to_spacy(self):
-        nlp = spacy.load('de_core_news_sm')
+        # nlp = spacy.load('de_core_news_sm')
         doc = nlp(self.text)
         return doc
 
     def preproces(self):
         text = re.sub(r'http\S+|{link}|\[video\]|@\S*|#\S*', '',
-                           self.raw_text.replace('\t', '').replace("\xad", ''))
+                      self.raw_text.replace('\t', '').replace("\xad", ''))
         return text
 
     def return_results(self):
-        results = [self.num_chars, self.num_words,  self.question, self.exclamation]
+        results = [self.num_chars, self.num_words, self.question, self.exclamation]
         return [0 if i is None else i for i in results]
 
     def get_word_len(self):
@@ -233,13 +232,13 @@ class headline():
         """
         :return: returns number of capital letters in the header
         """
-        count_cap=0
+        count_cap = 0
         for token in self.doc:
             count_cap += sum(1 for c in token.text if c.isupper())
         return count_cap
 
     def return_results(self):
-        results = [self.num_words,  self.question, self.exclamation, self.count_cap]
+        results = [self.num_words, self.question, self.exclamation, self.count_cap]
         return [0 if i is None else i for i in results]
 
 
@@ -258,16 +257,15 @@ if __name__ == "__main__":
     model_name = 'ml6team/distilbert-base-german-cased-toxic-comments'
     toxicity_pipeline = pipeline('text-classification', model=model_name, tokenizer=model_name)
 
-    #ToDo here should start the loop
-    feats_article = article(raw_text='Hier ist ein schön TExt. Und hier noch ein Satz. Das ist wütender Junge.',
-                dict_positive=dict_positive, dict_negative=dict_negative, keywords=keywords,
-                dict_arousal=dict_arousal, toxicity_pipeline=toxicity_pipeline, nlp=nlp
-                )
+    # ToDo here should start the loop
+    feats_article = Article(raw_text='Hier ist ein schön TExt. Und hier noch ein Satz. Das ist wütender Junge.',
+                            dict_positive=dict_positive, dict_negative=dict_negative, keywords=keywords,
+                            dict_arousal=dict_arousal, toxicity_pipeline=toxicity_pipeline, nlp=nlp
+                            )
     print(feats_article.return_results())
 
-    feats_headline = headline('hier ist eine Überschrift?!!!')
+    feats_headline = Headline('hier ist eine Überschrift?!!!', nlp)
     print(feats_headline.return_results())
-
 
     feats_all = feats_article.return_results() + feats_headline.return_results()
 
