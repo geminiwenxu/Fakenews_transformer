@@ -1,18 +1,16 @@
 import json
-
 import pandas as pd
 import yaml
 from pkg_resources import resource_filename
-from transformers import AutoModel
+from transformers import AutoModel, pipeline
+from draft_feats import Article, Headline
+import pickle
+import spacy
+from sklearn import preprocessing
+import os
 
-from feature_extractor.feature_generator import ADJPD, AdjustedModulus, ADVPD, Alpha, APD, ATL, AutoBERTT, ASL
-from feature_extractor.feature_generator import CurveLength, DPD, Entropy, Gini, HL, HPoint, IPD, NPD, Lambda, lmbd, NDW
-from feature_extractor.feature_generator import PPD, PREPPD, Q, R1, RR, RRR, STC, Syn, TC, TypeTokenRatio, uniquegrams, VD, VPD
-from feature_extractor.feature_generator import Scorer
 
 print("Start")
-bert_model = AutoModel.from_pretrained('bert-base-german-cased')
-
 
 def get_config(path: str) -> dict:
     with open(resource_filename(__name__, path), 'r') as stream:
@@ -22,39 +20,51 @@ def get_config(path: str) -> dict:
 
 def main():
     config = get_config('/../config/config.yaml')
-    train_path = resource_filename(__name__, config['train']['path'])
-
+    train_path = resource_filename(__name__, config['dev']['path'])
     df = pd.read_json(train_path)
-    print(df)
-    # result = df.drop("Unnamed: 0", axis=1)
-    # data = []
-    #
-    # for index, row in result.iterrows():
-    #     dict = {}
-    #     text_input = row['test_input']
-    #     tokens = bert_model.tokenize(text_input)
-    #     # print(len(tokens))
-    #     if len(tokens) < 510:
-    #         try:
-    #             sc = Scorer(scorers=[ADJPD(), AdjustedModulus(), ADVPD(), Alpha(), APD(), ATL(), AutoBERTT(), ASL(),
-    #                                  CurveLength(), DPD(), Entropy(), Gini(), HL(), HPoint(), IPD(), NPD(), Lambda(),
-    #                                  lmbd(), NDW(), PPD(), PREPPD(), Q(), R1(), RR(), RRR(), STC(), Syn(), TC(),
-    #                                  TypeTokenRatio(), uniquegrams(), VD(), VPD()])
-    #             scores, names, text_hash = sc.run("de", "dummy", text_input)
-    #             # print(scores)
-    #             # print(names)
-    #             # print(text_hash)
-    #             dict['text'] = text_input
-    #             dict['feature'] = scores
-    #             data.append(dict)
-    #
-    #         except ValueError:
-    #             print('value error')
-    # # print(data)
-    # output_file = open(resource_filename(__name__, config['neg_feature_file_path']['path']), 'w', encoding='utf-8')
-    # for dic in data:
-    #     json.dump(dic, output_file)
-    #     output_file.write("\n")
+
+    nlp = spacy.load('de_core_news_lg')
+    # get dictionaries for positive, negative and arousal words
+    # load keyword list
+    dict_positive = pickle.load(open("dictPositive.p", "rb"))
+    dict_negative = pickle.load(open("dictNegative.p", "rb"))
+    keywords = pd.read_csv('Keywords_fake.txt')
+    keywords = keywords.keyword.str.lower().tolist()
+    pd_arousal = pd.read_csv(filepath_or_buffer='list_arousal.csv', sep=';')
+    dict_arousal = pd_arousal.set_index('WORD_LOWER').to_dict()['AROUSAL_MEAN']
+
+    # for hatespeech detection
+    model_name = 'ml6team/distilbert-base-german-cased-toxic-comments'
+    toxicity_pipeline = pipeline('text-classification', model=model_name, tokenizer=model_name)
+
+
+    df_new = df#.iloc[:5,:]
+
+    list_feats = []
+    for index, row in df_new.iterrows():
+        feats_article = Article(raw_text=row['text'],
+                                dict_positive=dict_positive, dict_negative=dict_negative, keywords=keywords,
+                                dict_arousal=dict_arousal, toxicity_pipeline=toxicity_pipeline, nlp=nlp
+                                )
+        #print(feats_article.return_results())
+
+        feats_headline = Headline(row['title'], nlp)
+        #print(feats_headline.return_results())
+
+        feats_all = feats_article.return_results() + feats_headline.return_results()
+
+        list_feats.append(feats_all)
+
+
+    #df_feats = pd.DataFrame(list_feats)
+    min_max_scaler = preprocessing.MinMaxScaler()
+    df_feats_scaled = min_max_scaler.fit_transform(list_feats)
+    df_feats_scaled = pd.DataFrame(df_feats_scaled)
+    df_new['feature_input'] = df_feats_scaled.values.tolist()
+    df_new['feature_input'] = df_new['feature_input'].astype(str)
+
+
+    df_new.to_json(path_or_buf='news_feats_dev_norm.json', force_ascii=False, orient='records')
 
 
 if __name__ == "__main__":

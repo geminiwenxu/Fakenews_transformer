@@ -166,7 +166,7 @@ class Article():
         :return: returns score of hate/toxicity
         """
         hate_score = 0
-        result = toxicity_pipeline(self.text)[0]
+        result = self.toxicity_pipeline(self.text, truncation=True)[0]
         if result['label'] == 'toxic':
             hate_score = result['score']
         return hate_score
@@ -195,7 +195,7 @@ class Headline():
 
     def to_spacy(self):
         # nlp = spacy.load('de_core_news_sm')
-        doc = nlp(self.text)
+        doc = self.nlp(self.text)
         return doc
 
     def preproces(self):
