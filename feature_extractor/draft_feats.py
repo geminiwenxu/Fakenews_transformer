@@ -156,10 +156,11 @@ class Article():
         """
         :return: returns number of times personal pronouns were used
         """
-        personal = [t for t in self.doc if t.tag_ in ['PPOSAT', 'PPER'] and
-                    t.lemma_.lower() in ['mein', 'dein', 'deine', 'unser', 'unseren', 'ich', 'du', 'wir', 'ihr', 'mir',
-                                         'dir', 'euch', 'uns', 'dich', 'mich', 'euch', 'uns']]
-        print(len(personal))
+
+        personal = [t for t in self.doc if
+                    t.lemma_.lower() in ['mein', 'unser', 'unsere' , 'unseren', 'ich', 'wir', 'mir',
+                                         'dir', 'euch','ihr', 'eure', 'eurer' ,'uns', 'dich', 'mich']]
+        return len(personal)
 
     def get_hate_score(self):
         """

@@ -8,6 +8,7 @@ import pickle
 import spacy
 from sklearn import preprocessing
 import os
+import numpy as np
 
 
 print("Start")
@@ -34,11 +35,11 @@ def main():
     dict_arousal = pd_arousal.set_index('WORD_LOWER').to_dict()['AROUSAL_MEAN']
 
     # for hatespeech detection
-    model_name = 'ml6team/distilbert-base-german-cased-toxic-comments'
+    model_name = 'EIStakovskii/german_toxicity_classifier_plus_v2'
     toxicity_pipeline = pipeline('text-classification', model=model_name, tokenizer=model_name)
 
 
-    df_new = df#.iloc[:5,:]
+    df_new = df#.iloc[:100,:]
 
     list_feats = []
     for index, row in df_new.iterrows():
@@ -55,10 +56,17 @@ def main():
 
         list_feats.append(feats_all)
 
-
-    #df_feats = pd.DataFrame(list_feats)
+    df_feats = pd.DataFrame(list_feats)
+    # replace outliers with quantiles
+    for i in range(0, 20):
+        if i not in [12, 17, 18]:
+            lower_limit = df_feats[i].quantile(0.03)
+            upper_limit = df_feats[i].quantile(0.97)
+            df_feats[i] = np.where(df_feats[i] > upper_limit, upper_limit,
+                                   np.where(df_feats[i] < lower_limit, lower_limit,
+                                            df_feats[i]))
     min_max_scaler = preprocessing.MinMaxScaler()
-    df_feats_scaled = min_max_scaler.fit_transform(list_feats)
+    df_feats_scaled = min_max_scaler.fit_transform(df_feats)
     df_feats_scaled = pd.DataFrame(df_feats_scaled)
     df_new['feature_input'] = df_feats_scaled.values.tolist()
     df_new['feature_input'] = df_new['feature_input'].astype(str)
