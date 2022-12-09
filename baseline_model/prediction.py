@@ -24,9 +24,6 @@ def get_predictions(model, data_loader):
             )
 
             preds = (outputs > 0.5).float()
-            print("pred outputs", outputs)
-            print("preds", preds)
-
             probs = outputs
 
             review_texts.extend(texts)

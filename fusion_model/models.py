@@ -1,7 +1,10 @@
 import torch
 import torch.nn as nn
+
 from converter import BertConverter, FeatureConverter, DenseConverter
 from fusion_techniques import concatenate
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class FakeNewsBinaryModel(nn.Module):
@@ -13,13 +16,8 @@ class FakeNewsBinaryModel(nn.Module):
         self.dense_converter = DenseConverter(batch_size=self.batch_size)
 
     def forward(self, input_ids, attention_mask, **feature_input):
-        bert_embedding = torch.FloatTensor(self.bert_converter.forward(input_ids, attention_mask))
-        print("bert embeddings", bert_embedding.size())
-        print(feature_input)
+        bert_embedding = torch.FloatTensor(self.bert_converter.forward(input_ids, attention_mask)).to(device)
         feature_embedding = self.feature_converter.forward(feature_input['feature_inputs'])
-        print('feature_embedding', feature_embedding.size())
         joint_embedding = concatenate(bert_embedding, feature_embedding)
-        print('joint', joint_embedding.size())
         prob = self.dense_converter(joint_embedding)
-        print('outputs of model', prob)
         return prob

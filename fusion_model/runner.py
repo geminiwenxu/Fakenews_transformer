@@ -20,7 +20,7 @@ class_names = ['real', 'fake']
 tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=True)
 
 MAX_LEN = 160
-BATCH_SIZE = 2
+BATCH_SIZE = 16
 
 
 def get_config(path):

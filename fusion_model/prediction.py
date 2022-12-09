@@ -1,5 +1,7 @@
-import torch
 import ast
+
+import torch
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -24,8 +26,6 @@ def get_predictions(model, data_loader):
                 x = ast.literal_eval(i)
                 y.append(x)
             feature_input = torch.tensor(y).to(torch.float32).to(device)
-            print(input_ids.size(), attention_mask.size(), targets.size())
-            print("the input", feature_input, type(feature_input), feature_input.size())
 
             outputs = model(
                 input_ids=input_ids,
@@ -33,10 +33,7 @@ def get_predictions(model, data_loader):
                 feature_inputs=feature_input,
             )
 
-            preds = (outputs > 0.45).float()
-            # print("pred outputs", outputs)
-            # print("preds", preds)
-
+            preds = (outputs > 0.5).float()
             probs = outputs
 
             review_texts.extend(texts)
