@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-import torch.nn as nn
 
 
 def train_epoch(
@@ -28,19 +27,12 @@ def train_epoch(
             input_ids=input_ids,
             attention_mask=attention_mask
         )
-        print(re_targets)
         preds = (outputs > 0.5).float()
         loss = loss_fn(outputs, re_targets)
         correct_predictions += torch.sum(preds == re_targets)
-        # print("train outputs", outputs)
-        # print("train preds", preds)
-        # print("train re_targets", re_targets)
-        # print("train loss", loss)
-        # print("train correct_prediction", correct_predictions)
         losses.append(loss.item())
 
         loss.backward()
-        # nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer.step()
         scheduler.step()
         optimizer.zero_grad()
@@ -66,14 +58,9 @@ def eval_model(model, data_loader, loss_fn, device, n_examples):
                 input_ids=input_ids,
                 attention_mask=attention_mask
             )
-            preds = (outputs > 0.45).float()
+            preds = (outputs > 0.5).float()
             loss = loss_fn(outputs, re_targets)
             correct_predictions += torch.sum(preds == re_targets)
-            # print("eval outputs", outputs)
-            # print("eval preds", preds)
-            # print("eval re_targets", re_targets)
-            # print("eval loss", loss)
-            # print("eval correct_prediction", correct_predictions)
             losses.append(loss.item())
 
     return correct_predictions.double() / n_examples, np.mean(losses)
