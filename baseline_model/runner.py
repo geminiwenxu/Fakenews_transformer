@@ -10,20 +10,15 @@ from transformers import AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from baseline_model.bert_model import BertBinaryClassifier
-from baseline_model.plot import plot
 from baseline_model.prediction import get_predictions
 from baseline_model.prepare_data import create_data_loader
 from baseline_model.train import train_epoch, eval_model
+from utilities.log_samples import save_samples
+from utilities.plot import plot
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['real', 'fake']
 tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=False)
-
-model = BertBinaryClassifier()
-model.to(device)
-
-MAX_LEN = 160
-BATCH_SIZE = 16
 
 
 def get_config(path):
@@ -33,6 +28,13 @@ def get_config(path):
 
 
 config = get_config('/../config/config.yaml')
+
+model = BertBinaryClassifier()
+model.to(device)
+
+MAX_LEN = config['max_len']
+BATCH_SIZE = config['batch_size']
+
 train_path = resource_filename(__name__, config['train']['path'])
 dev_path = resource_filename(__name__, config['dev']['path'])
 test_path = resource_filename(__name__, config['test']['path'])
@@ -45,8 +47,8 @@ train_data_loader = create_data_loader(df_train, tokenizer, MAX_LEN, BATCH_SIZE)
 dev_data_loader = create_data_loader(df_dev, tokenizer, MAX_LEN, BATCH_SIZE)
 test_data_loader = create_data_loader(df_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
-EPOCHS = 5
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+EPOCHS = config['epoch']
+optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
 total_steps = len(train_data_loader) * EPOCHS
 scheduler = get_linear_schedule_with_warmup(
     optimizer,
@@ -102,10 +104,10 @@ def main():
         model,
         test_data_loader
     )
+
+    save_samples(y_review_texts, y_pred, y_pred_probs, y_test)
     y_pred = y_pred.cpu().detach().numpy()
 
-    print("pred y_pred", y_pred)
-    print("pred y_test", y_test)
     print(classification_report(y_test, y_pred, target_names=class_names))
 
 

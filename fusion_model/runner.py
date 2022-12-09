@@ -10,17 +10,15 @@ from transformers import AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
 from fusion_model.models import FakeNewsBinaryModel
-from baseline_model.plot import plot
 from fusion_model.prediction import get_predictions
 from fusion_model.prepare_data import create_data_loader
 from fusion_model.train import train_epoch, eval_model
+from utilities.log_samples import save_samples
+from utilities.plot import plot
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['real', 'fake']
 tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=True)
-
-MAX_LEN = 160
-BATCH_SIZE = 16
 
 
 def get_config(path):
@@ -30,6 +28,9 @@ def get_config(path):
 
 
 config = get_config('/../config/config.yaml')
+MAX_LEN = config['max_len']
+BATCH_SIZE = config['batch_size']
+
 train_path = resource_filename(__name__, config['train']['path'])
 dev_path = resource_filename(__name__, config['dev']['path'])
 test_path = resource_filename(__name__, config['test']['path'])
@@ -44,8 +45,8 @@ test_data_loader = create_data_loader(df_test, tokenizer, MAX_LEN, BATCH_SIZE)
 
 model = FakeNewsBinaryModel(batch_size=BATCH_SIZE)
 model.to(device)
-EPOCHS = 5
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+EPOCHS = config['epoch']
+optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
 total_steps = len(train_data_loader) * EPOCHS
 scheduler = get_linear_schedule_with_warmup(
     optimizer,
@@ -95,15 +96,16 @@ def main():
             torch.save(model.state_dict(), 'best_model_state.bin')
             best_accuracy = val_acc
     plot(history)
-    y_review_texts, y_pred, y_pred_probs, y_dev = get_predictions(
+
+    y_review_texts, y_pred, y_pred_probs, y_test = get_predictions(
         model,
         test_data_loader
     )
-    y_pred = y_pred.cpu().detach().numpy()
 
-    print("pred y_pred", y_pred)
-    print("pred y_dev", y_dev)
-    print(classification_report(y_dev, y_pred, target_names=class_names))
+    save_samples(y_review_texts, y_pred, y_pred_probs, y_test)
+
+    y_pred = y_pred.cpu().detach().numpy()
+    print(classification_report(y_test, y_pred, target_names=class_names))
 
 
 if __name__ == '__main__':
