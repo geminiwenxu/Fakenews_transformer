@@ -21,4 +21,4 @@ def plot(history):
     plt.legend()
     plt.ylim([0, 1.5])
     plt.tight_layout()
-    plt.savefig("baseline_model.png")
+    plt.savefig("model.png")
