@@ -9,20 +9,14 @@ def save_samples(y_review_texts, y_pred, y_pred_probs, y_test):
         correct = dict()
         wrong = dict()
         if y_pred[i] == y_test[i]:
-            print('correct', i)
-            print(y_pred[i], y_test[i])
             correct['text'] = y_review_texts[i]
             correct['prob'] = y_pred_probs[i].item()
             log_correct.append(correct)
 
         else:
-            print('wrong', i)
-            print(y_pred[i], y_test[i])
             wrong['text'] = y_review_texts[i]
             wrong['prob'] = y_pred_probs[i].item()
             log_wrong.append(wrong)
-    # print("CORRECT", log_correct)
-    # print("WRONG", log_wrong)
 
     with open('correct.json', 'w') as c:
         json.dump(log_correct, c)
