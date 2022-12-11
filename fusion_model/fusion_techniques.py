@@ -60,4 +60,4 @@ def attention_fusion(bert_embedding, feature_embedding):
 
             f_t_value, f_t_attention = scaled_dot_product(f_t_Q, f_t_K, f_t_V)
     value, inx = torch.max(torch.stack((f_t_value, t_f_value), dim=0), dim=0)
-    return value
+    return torch.cat((f_t_value, t_f_value))
