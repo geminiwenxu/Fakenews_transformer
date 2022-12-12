@@ -19,17 +19,17 @@ def train_epoch(
     for d in data_loader:
         input_ids = d["input_ids"].to(device)
         attention_mask = d["attention_mask"].to(device)
-        targets = d["targets"].to(device)
-        re_targets = targets.reshape(len(targets), 1)
-        re_targets = re_targets.to(torch.float32)
+        targets = d["targets"].to(torch.float32).to(device)
 
         outputs = model(
             input_ids=input_ids,
             attention_mask=attention_mask
         )
+        outputs = outputs.reshape(-1)
         preds = (outputs > 0.5).float()
-        loss = loss_fn(outputs, re_targets)
-        correct_predictions += torch.sum(preds == re_targets)
+
+        loss = loss_fn(outputs, targets)
+        correct_predictions += torch.sum(preds == targets)
         losses.append(loss.item())
 
         loss.backward()
@@ -50,17 +50,17 @@ def eval_model(model, data_loader, loss_fn, device, n_examples):
         for d in data_loader:
             input_ids = d["input_ids"].to(device)
             attention_mask = d["attention_mask"].to(device)
-            targets = d["targets"].to(device)
-            re_targets = targets.reshape(len(targets), 1)
-            re_targets = re_targets.to(torch.float32)
+            targets = d["targets"].to(torch.float32).to(device)
 
             outputs = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask
             )
+            outputs = outputs.reshape(-1)
             preds = (outputs > 0.5).float()
-            loss = loss_fn(outputs, re_targets)
-            correct_predictions += torch.sum(preds == re_targets)
+
+            loss = loss_fn(outputs, targets)
+            correct_predictions += torch.sum(preds == targets)
             losses.append(loss.item())
 
     return correct_predictions.double() / n_examples, np.mean(losses)

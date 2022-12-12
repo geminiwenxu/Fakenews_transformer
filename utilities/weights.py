@@ -1,10 +1,29 @@
+import pandas as pd
 import torch
-import torch.nn as nn
+import yaml
+from pkg_resources import resource_filename
 
-class_count_df = df.groupby(TARGET).count()
-n_0, n_1 = class_count_df.iloc[0, 0], class_count_df.iloc[1, 0]
-w_0 = (n_0 + n_1) / (2.0 * n_0)
-w_1 = (n_0 + n_1) / (2.0 * n_1)
-class_weights = torch.FloatTensor([w_0, w_1]).cuda()
 
-loss_fn = nn.BCELoss(weight=class_weights).to(device)
+def get_config(path):
+    with open(resource_filename(__name__, path), 'r') as stream:
+        conf = yaml.safe_load(stream)
+    return conf
+
+
+def weights():
+    config = get_config('/../config/config.yaml')
+    train_path = resource_filename(__name__, config['train']['path'])
+    dev_path = resource_filename(__name__, config['dev']['path'])
+    test_path = resource_filename(__name__, config['test']['path'])
+    num_real =0
+    num_fake =0
+    for path in [train_path, dev_path, test_path]:
+        df = pd.read_json(path)
+        num_real += len(df[df['label_id'] == 1])
+        num_fake += len(df[df['label_id'] == 0])
+    print(num_real, num_fake)
+    w_0 = (num_fake + num_real) / (2.0 * num_fake)
+    w_1 = (num_fake + num_real) / (2.0 * num_real)
+    class_weights = torch.FloatTensor([w_0, w_1])
+    print(class_weights)
+    return class_weights

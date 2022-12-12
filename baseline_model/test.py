@@ -18,7 +18,8 @@ if __name__ == '__main__':
                                return_token_type_ids=False,
                                pad_to_max_length=True,
                                return_attention_mask=True,
-                               return_tensors='pt', )
+                               return_tensors='pt',
+                               output_hidden_states=True)
     inputs2 = tokenizer("Hello world!", return_tensors="pt")
     # print(inputs)
     # print(inputs1)
