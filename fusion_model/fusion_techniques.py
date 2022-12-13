@@ -79,26 +79,27 @@ def scaled_dot_product(q, k, v, mask=None):
 def attention_fusion(bert_embedding, feature_embedding):
     head = 1
     attention_layer = 1
-
+    bert_size = bert_embedding.size()[-1]
+    feature_size = feature_embedding.size()[-1]
     for layer in range(attention_layer):
         for _ in range(head):
-            linear1 = nn.Linear(512, 32, bias=True).to(device)
+            linear1 = nn.Linear(feature_size, 32, bias=True).to(device)
             t_f_K = linear1(feature_embedding)
 
-            linear2 = nn.Linear(768, 32, bias=True).to(device)
+            linear2 = nn.Linear(bert_size, 32, bias=True).to(device)
             t_f_Q = linear2(bert_embedding)
 
-            linear3 = nn.Linear(512, 32, bias=True).to(device)
+            linear3 = nn.Linear(feature_size, 32, bias=True).to(device)
             t_f_V = linear3(feature_embedding)
             t_f_value, t_f_attention = scaled_dot_product(t_f_Q, t_f_K, t_f_V)
 
-            linear4 = nn.Linear(512, 32, bias=True).to(device)
+            linear4 = nn.Linear(feature_size, 32, bias=True).to(device)
             f_t_Q = linear4(feature_embedding)
 
-            linear5 = nn.Linear(768, 32, bias=True).to(device)
+            linear5 = nn.Linear(bert_size, 32, bias=True).to(device)
             f_t_K = linear5(bert_embedding)
 
-            linear6 = nn.Linear(768, 32, bias=True).to(device)
+            linear6 = nn.Linear(bert_size, 32, bias=True).to(device)
             f_t_V = linear6(bert_embedding)
 
             f_t_value, f_t_attention = scaled_dot_product(f_t_Q, f_t_K, f_t_V)

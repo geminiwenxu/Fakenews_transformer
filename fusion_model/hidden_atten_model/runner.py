@@ -9,16 +9,18 @@ from sklearn.metrics import classification_report
 from transformers import AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
-from fusion_model.models import FakeNewsBinaryModel
+from fusion_model.hidden_atten_model.models import FakeNewsBinaryModel
 from fusion_model.prediction import get_predictions
 from fusion_model.prepare_data import create_data_loader
 from fusion_model.train import train_epoch, eval_model
-from utilities.log_samples import save_samples
-from utilities.plot import plot
+from fusion_model.utilities.log_samples import save_samples
+from fusion_model.utilities.plot import plot
+from fusion_model.utilities.weights import weights
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['real', 'fake']
 tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=True)
+class_weights = weights()
 
 
 def get_config(path):
@@ -27,7 +29,7 @@ def get_config(path):
     return conf
 
 
-config = get_config('/../config/config.yaml')
+config = get_config('/../../config/config.yaml')
 MAX_LEN = config['max_len']
 BATCH_SIZE = config['batch_size']
 
@@ -53,7 +55,7 @@ scheduler = get_linear_schedule_with_warmup(
     num_warmup_steps=0,
     num_training_steps=total_steps
 )
-loss_fn = nn.BCELoss().to(device)
+loss_fn = nn.BCELoss(weight=class_weights).to(device)
 
 
 def main():

@@ -6,4 +6,7 @@ baseline_model/best_model_state.bin
 /__pycache__/
 *.pyc
 *.log
-fusion_model/best_model_state.bin
+cls_con_model/best_model_state.bin
+cls_atten_model/best_model_state.bin
+hidden_con_model/best_model_state.bin
+hidden_atten_model/best_model_state.bin

@@ -11,7 +11,7 @@ def get_config(path):
 
 
 def weights():
-    config = get_config('/../config/config.yaml')
+    config = get_config('/../../config/config.yaml')
     train_path = resource_filename(__name__, config['train']['path'])
     dev_path = resource_filename(__name__, config['dev']['path'])
     test_path = resource_filename(__name__, config['test']['path'])
@@ -21,9 +21,7 @@ def weights():
         df = pd.read_json(path)
         num_real += len(df[df['label_id'] == 1])
         num_fake += len(df[df['label_id'] == 0])
-    print(num_real, num_fake)
     w_0 = (num_fake + num_real) / (2.0 * num_fake)
     w_1 = (num_fake + num_real) / (2.0 * num_real)
     class_weights = torch.FloatTensor([w_0, w_1])
-    print(class_weights)
     return class_weights

@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoTokenizer
 
-tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=True)
+tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=False)
 
 
 class ReviewDataset(Dataset):

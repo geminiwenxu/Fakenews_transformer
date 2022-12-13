@@ -8,12 +8,12 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class BertConverter():
     def __init__(self):
         super(BertConverter, self).__init__()
-        self.model = AutoModel.from_pretrained('bert-base-german-cased').to(device)
+        self.model = AutoModel.from_pretrained('bert-base-german-cased', output_hidden_states=True).to(device)
         self.model.train()
 
     def forward(self, input_ids, attention_mask):
         bert_results = self.model(input_ids, attention_mask)
-        return bert_results.last_hidden_state[0, 0, :].detach().cpu().numpy().tolist()  # return the cls embedding
+        return bert_results.last_hidden_state[0, 0, :].detach().cpu().numpy().tolist()
 
 
 class FeatureConverter(nn.Module):
@@ -49,7 +49,7 @@ class AttenDenseConverter(nn.Module):
     def __init__(self, batch_size):
         super(AttenDenseConverter, self).__init__()
         self.batch_size = batch_size
-        self.layer1 = nn.Linear(1344, 32)
+        self.layer1 = nn.Linear(896, 32)
         self.layer2 = nn.Linear(32, self.batch_size)
         self.drop = nn.Dropout(p=0.3)
         self.sigmoid = nn.Sigmoid()
