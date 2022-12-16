@@ -7,8 +7,7 @@ dev:
 test:
   path: /../data/test_test.json
 
-
-epoch: 5
-batch_size: 16
-max_len: 512
+epoch: 1
+batch_size: 5
+max_len: 160
 learning_rate: 0.0001

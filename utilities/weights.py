@@ -10,13 +10,17 @@ def get_config(path):
     return conf
 
 
+config = get_config('/../config/config.yaml')
+BATCH_SIZE = config['batch_size']
+
+
 def weights():
-    config = get_config('/../../config/config.yaml')
+    config = get_config('/../config/config.yaml')
     train_path = resource_filename(__name__, config['train']['path'])
     dev_path = resource_filename(__name__, config['dev']['path'])
     test_path = resource_filename(__name__, config['test']['path'])
-    num_real =0
-    num_fake =0
+    num_real = 0
+    num_fake = 0
     for path in [train_path, dev_path, test_path]:
         df = pd.read_json(path)
         num_real += len(df[df['label_id'] == 1])

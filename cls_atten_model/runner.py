@@ -9,13 +9,13 @@ from sklearn.metrics import classification_report
 from transformers import AutoTokenizer
 from transformers import get_linear_schedule_with_warmup
 
-from fusion_model.hidden_con_model.models import FakeNewsBinaryModel
-from fusion_model.prediction import get_predictions
-from fusion_model.prepare_data import create_data_loader
-from fusion_model.train import train_epoch, eval_model
-from fusion_model.utilities.log_samples import save_samples
-from fusion_model.utilities.plot import plot
-from fusion_model.utilities.weights import weights
+from cls_atten_model.models import FakeNewsBinaryModel
+from prediction import get_predictions
+from prepare_data import create_data_loader
+from train import train_epoch, eval_model
+from utilities.log_samples import save_samples
+from utilities.plot import plot
+from utilities.weights import weights
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['real', 'fake']

@@ -27,7 +27,7 @@ def train_epoch(
         )
         outputs = outputs.reshape(-1)
         preds = (outputs > 0.5).float()
-
+        
         loss = loss_fn(outputs, targets)
         correct_predictions += torch.sum(preds == targets)
         losses.append(loss.item())
