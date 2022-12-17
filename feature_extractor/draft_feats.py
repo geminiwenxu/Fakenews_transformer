@@ -8,7 +8,8 @@ from transformers import pipeline
 
 
 class Article():
-    def __init__(self, raw_text, dict_positive, dict_negative, keywords, dict_arousal,
+    def __init__(self, raw_text, dict_positive, dict_negative, keywords_fear, keywords_scandal, keywords_pop,
+                 keywords_manip, dict_arousal,
                  toxicity_pipeline, nlp):
         self.raw_text = raw_text
         self.nlp = nlp
@@ -16,7 +17,10 @@ class Article():
         self.dict_positive = dict_positive
         self.dict_negative = dict_negative
         self.dict_arousal = dict_arousal
-        self.keywords = keywords
+        self.keywords_fear = keywords_fear
+        self.keywords_scandal = keywords_scandal
+        self.keywords_pop = keywords_pop
+        self.keywords_manip = keywords_manip
         self.text = self.preproces()
         self.doc = self.to_spacy()
         self.num_chars = self.get_word_len()
@@ -25,13 +29,17 @@ class Article():
         self.positive = self.get_positive_words()
         self.negative = self.get_negative_words()
         self.nouns = self.get_no_nouns()
+        self.modal = self.get_no_noun_modal()
         self.adjectives = self.get_no_adj()
         self.arousal = self.get_arousive_words()
-        self.count_keywords = self.get_count_keywords()
+        # self.count_keywords = self.get_count_keywords()
+        self.fear, self.pop, self.manip, self.scandal = self.get_scores()
         self.numbers = self.get_no_num()
         self.ner = self.get_count_ner()
         self.oov = self.get_no_oov()
         self.question = self.get_questions()
+        self.exag = self.get_exag()
+        self.quatation = self.get_quatation()
         self.exclamation = self.get_exclamation()
         self.personal = self.get_personal()
         self.hate = self.get_hate_score()
@@ -104,9 +112,18 @@ class Article():
         sentences_len = [len(s) for s in self.doc.sents]
         return np.average(sentences_len)
 
-    def get_no_nouns(self):
+    def get_no_noun_modal(self):
         """
         :return: returns number of nouns
+        """
+        nouns = [t for t in self.doc if
+                  t.lemma_ in ['dürfen', "können", 'wollen', 'mögen', 'müssen', 'sollen']]
+        #print(len(nouns))
+        return len(nouns)
+
+    def get_no_nouns(self):
+        """
+        :return: returns number of numbers
         """
         nouns = [t for t in self.doc if t.pos_ == 'NOUN']
         return len(nouns)
@@ -139,6 +156,13 @@ class Article():
         exclamation_marks = [t for t in self.doc if t.text == '!']
         return len(exclamation_marks)
 
+    def get_quatation(self):
+        """
+        :return: returns number of quatation marks  -> sogenannte 'Demokratie'
+        """
+        quotation_marks = [t for t in self.doc if t.text in ['"', "'", '„', '‚', '“', '‘', '«', '`']]
+        return len(quotation_marks)
+
     def get_no_oov(self):
         """
         :return: returns number of out-of-vocabulary words
@@ -158,8 +182,8 @@ class Article():
         """
 
         personal = [t for t in self.doc if
-                    t.lemma_.lower() in ['mein', 'unser', 'unsere' , 'unseren', 'ich', 'wir', 'mir',
-                                         'dir', 'euch','ihr', 'eure', 'eurer' ,'uns', 'dich', 'mich']]
+                    t.lemma_.lower() in ['mein', 'unser', 'unsere', 'unseren', 'ich', 'wir', 'mir',
+                                         'dir', 'euch', 'ihr', 'eure', 'eurer', 'uns', 'dich', 'mich']]
         return len(personal)
 
     def get_hate_score(self):
@@ -176,10 +200,48 @@ class Article():
         neg_pattern = r"(kein|nie|weder|ohne|nicht)."
         return len(re.findall(neg_pattern, self.text))
 
+    def get_exag(self):
+        # dramatisch, steigend, massenhaft  # Schaefer S.177 , schwerwiegend, äußerst, massiv, enorm, extrem, hochgradig Breil et. al S.250 , absolut, total, völlig Scharloth s.7
+        exag = [t for t in self.doc if
+                t.lemma_.lower() in ['dramatisch', 'steigend', 'massenhaft', 'schwerwiegend', 'äußerst', 'massiv',
+                                     'enorm', 'hochgradig', 'extrem', 'absolut', 'total', 'völlig']]
+        return len(exag)
+
+    def get_scores(self):
+        self.count_pop = 0
+        self.count_fear = 0
+        self.count_manip = 0
+        self.count_scandal = 0
+        for i in self.doc:
+            if any(t in i.text.lower() for t in self.keywords_fear): self.count_fear += 1
+            if any(t in i.text.lower() for t in self.keywords_pop): self.count_pop += 1
+            if any(t in i.text.lower() for t in self.keywords_manip): self.count_manip += 1
+            if any(t in i.text.lower() for t in self.keywords_scandal): self.count_scandal += 1
+        return self.count_fear, self.count_pop, self.count_manip, self.count_scandal
+
     def return_results(self):
-        results = [self.num_chars, self.num_words, self.positive, self.negative, self.nouns,
-                   self.adjectives, self.arousal, self.count_keywords, self.numbers, self.ner,
-                   self.oov, self.personal, self.hate, self.question, self.exclamation, self.negations]
+        results = [self.num_chars,
+                   self.num_words,
+                   self.positive,
+                   self.negative,
+                   self.nouns,
+                   self.modal,
+                   self.adjectives,
+                   self.arousal,
+                   self.fear,
+                   self.pop,
+                   self.manip,
+                   self.scandal,
+                   self.numbers,
+                   self.ner,
+                   self.oov,
+                   self.question,
+                   self.exag,
+                   self.quatation,
+                  # self.exclamation,  not passing the t-test
+                   self.personal,
+                   self.hate,
+                   self.negations]
         return [0 if i is None else i for i in results]
 
 
