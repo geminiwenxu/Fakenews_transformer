@@ -25,27 +25,27 @@ def main():
     nlp = spacy.load('de_core_news_lg')
     # get dictionaries for positive, negative and arousal words
     # load keyword list
-    dict_positive = pickle.load(open("dictPositive.p", "rb"))
-    dict_negative = pickle.load(open("dictNegative.p", "rb"))
+    dict_positive = pickle.load(open("feature_extractor/dictPositive.p", "rb"))
+    dict_negative = pickle.load(open("feature_extractor/dictNegative.p", "rb"))
     #keywords = pd.read_csv('Keywords_fake.txt')
     #keywords = keywords.keyword.str.lower().tolist()
-    pd_arousal = pd.read_csv(filepath_or_buffer='list_arousal.csv', sep=';')
+    pd_arousal = pd.read_csv(filepath_or_buffer='feature_extractor/list_arousal.csv', sep=';')
     dict_arousal = pd_arousal.set_index('WORD_LOWER').to_dict()['AROUSAL_MEAN']
 
 
     # keywords list
     # fear
-    fear = pd.read_csv('keywords_fear.txt')
+    fear = pd.read_csv('feature_extractor/keywords_fear.txt')
     fear = fear.keyword.str.lower().tolist()
     #scandal
-    scandal = pd.read_csv('keywords_scandal.txt')
+    scandal = pd.read_csv('feature_extractor/keywords_scandal.txt')
     scandal = scandal.keyword.str.lower().tolist()
     #populism
-    polulism = pd.read_csv('keywords_populism.txt')
+    polulism = pd.read_csv('feature_extractor/keywords_populism.txt')
     polulism = polulism.keyword.str.lower().tolist()
 
     # manipulation
-    manipulation = pd.read_csv('keywords_manipulation.txt')
+    manipulation = pd.read_csv('feature_extractor/keywords_manipulation.txt')
     manipulation = manipulation.keyword.str.lower().tolist()
 
     # for hatespeech detection
