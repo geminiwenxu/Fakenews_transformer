@@ -11,7 +11,7 @@ import os
 import numpy as np
 
 
-print("Start")
+
 
 def get_config(path: str) -> dict:
     with open(resource_filename(__name__, path), 'r') as stream:
@@ -76,14 +76,16 @@ def main():
 
 
     # replace outliers with quantiles
+    '''
     for i in range(0, 24):
             lower_limit = df_feats[i].quantile(0.05)
             upper_limit = df_feats[i].quantile(0.95)
             df_feats[i] = np.where(df_feats[i] > upper_limit, upper_limit,
                                    np.where(df_feats[i] < lower_limit, lower_limit,
                                             df_feats[i]))
-    min_max_scaler = preprocessing.StandardScaler()
-    df_feats_scaled = min_max_scaler.fit_transform(df_feats)
+    '''
+    scaler = preprocessing.RobustScaler(quantile_range=(5.0, 95.0))
+    df_feats_scaled = scaler.fit_transform(df_feats)
     df_feats_scaled = pd.DataFrame(df_feats_scaled)
 
     # save the feats for furher inspection
