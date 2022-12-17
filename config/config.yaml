@@ -1,13 +1,31 @@
 train:
-  path: /../data/train_test.json
+  path: /../data/train_sample.json
 
 dev:
-  path: /../data/dev_test.json
+  path: /../data/dev_sample.json
 
 test:
-  path: /../data/test_test.json
+  path: /../data/test_sample.json
 
 epoch: 1
 batch_size: 5
 max_len: 160
 learning_rate: 0.0001
+path_dict_pos:
+  path: /../data/dictPositive.p
+path_dict_neg:
+  path: /../data/dictNegative.p
+path_exp:
+  path: /../data/expressive_verbs.txt
+path_fear:
+  path: /../data/keywords_fear.txt
+path_manipulation:
+  path: /../data/keywords_manipulation.txt
+path_pop:
+  path: /../data/keywords_populism.txt
+path_scandal:
+  path: /../data/keywords_scandal.txt
+path_secret:
+  path: /../data/keywords_secret.txt
+path_arousal:
+  path: /../data/list_arousal.csv
