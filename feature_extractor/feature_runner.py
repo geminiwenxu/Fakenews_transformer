@@ -7,8 +7,6 @@ from draft_feats import Article, Headline
 import pickle
 import spacy
 from sklearn import preprocessing
-import os
-import numpy as np
 
 
 
