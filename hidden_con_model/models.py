@@ -19,7 +19,6 @@ class FakeNewsBinaryModel(nn.Module):
         bert_embedding = torch.FloatTensor(self.bert_converter.forward(input_ids, attention_mask)).to(device)
         bert_embedding = torch.flatten(bert_embedding, start_dim=0, end_dim=-1)
         feature_embedding = self.feature_converter.forward(feature_input['feature_inputs'])
-
         joint_embedding = concatenate(bert_embedding, feature_embedding)
         prob = self.dense_converter(joint_embedding)
         return prob

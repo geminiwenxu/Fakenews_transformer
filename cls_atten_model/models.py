@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from converter import BertConverter, FeatureConverter, AttenDenseConverter
-from fusion_model.fusion_techniques import attention_fusion
+from fusion_techniques import attention_fusion
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 

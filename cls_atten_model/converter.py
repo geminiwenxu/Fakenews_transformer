@@ -8,7 +8,8 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class BertConverter():
     def __init__(self):
         super(BertConverter, self).__init__()
-        self.model = AutoModel.from_pretrained('bert-base-german-cased', output_hidden_states=True).to(device)
+        self.model = AutoModel.from_pretrained('bert-base-german-cased', output_hidden_states=True,
+                                               do_lower_case=False).to(device)
         self.model.train()
 
     def forward(self, input_ids, attention_mask):
