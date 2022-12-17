@@ -320,7 +320,7 @@ if __name__ == "__main__":
     model_name = 'ml6team/distilbert-base-german-cased-toxic-comments'
     toxicity_pipeline = pipeline('text-classification', model=model_name, tokenizer=model_name)
 
-    # ToDo here should start the loop
+
     feats_article = Article(raw_text='Hier ist ein schön TExt. Und hier noch ein Satz. Das ist wütender Junge.',
                             dict_positive=dict_positive, dict_negative=dict_negative, keywords=keywords,
                             dict_arousal=dict_arousal, toxicity_pipeline=toxicity_pipeline, nlp=nlp

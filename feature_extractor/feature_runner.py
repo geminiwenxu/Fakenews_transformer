@@ -74,7 +74,7 @@ def main():
 
     df_feats = pd.DataFrame(list_feats)
 
-    #'''
+
     # replace outliers with quantiles
     for i in range(0, 24):
             lower_limit = df_feats[i].quantile(0.05)
@@ -99,7 +99,7 @@ def main():
         df_new = df_new.drop([df_new.index[df_new[df_new['feature_input'].str.contains('nan')].index[0]]])
 
     df_new.to_json(path_or_buf='news_feats_train_norm.json', force_ascii=False, orient='records')
-    #'''
+
 
 if __name__ == "__main__":
     main()
