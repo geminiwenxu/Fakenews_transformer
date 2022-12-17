@@ -2,7 +2,6 @@ from collections import defaultdict
 
 import pandas as pd
 import torch
-import torch.nn as nn
 import yaml
 from pkg_resources import resource_filename
 from sklearn.metrics import classification_report
@@ -15,12 +14,10 @@ from prepare_data import create_data_loader
 from train import train_epoch, eval_model
 from utilities.log_samples import save_samples
 from utilities.plot import plot
-from utilities.weights import weights
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['real', 'fake']
 tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=True)
-class_weights = weights()
 
 
 def get_config(path):
@@ -55,7 +52,6 @@ scheduler = get_linear_schedule_with_warmup(
     num_warmup_steps=0,
     num_training_steps=total_steps
 )
-loss_fn = nn.BCELoss(weight=class_weights).to(device)
 
 
 def main():
@@ -69,7 +65,6 @@ def main():
         train_acc, train_loss = train_epoch(
             model,
             train_data_loader,
-            loss_fn,
             optimizer,
             device,
             scheduler,
@@ -81,7 +76,6 @@ def main():
         val_acc, val_loss = eval_model(
             model,
             dev_data_loader,
-            loss_fn,
             device,
             len(df_dev)
         )

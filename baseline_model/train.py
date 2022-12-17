@@ -7,7 +7,6 @@ from utilities.weights import weights
 def train_epoch(
         model,
         data_loader,
-        # loss_fn,
         optimizer,
         device,
         scheduler,
