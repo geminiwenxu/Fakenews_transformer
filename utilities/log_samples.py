@@ -17,7 +17,7 @@ def save_samples(y_review_texts, y_pred, y_pred_probs, y_test):
         else:
             wrong['text'] = y_review_texts[i]
             wrong['prob'] = y_pred_probs[i].item()
-            correct['prediction'] = y_pred[i].item()
+            wrong['prediction'] = y_pred[i].item()
             log_wrong.append(wrong)
 
     with open('correct.json', 'w') as c:

@@ -7,7 +7,7 @@ def weights(targets):
     w_0 = num_fake / (num_fake + num_real)
     w_1 = num_real / (num_fake + num_real)
     class_weights = []
-    for i in targets.numpy():
+    for i in targets:
         if i == 0.0:
             class_weights.append(w_0)
         else:
