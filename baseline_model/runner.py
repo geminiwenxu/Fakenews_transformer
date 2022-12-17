@@ -20,7 +20,7 @@ from utilities.weights import weights
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['fake', 'real']
 tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=False)
-class_weights = weights()
+# class_weights = weights()
 
 
 def get_config(path):
@@ -57,7 +57,7 @@ scheduler = get_linear_schedule_with_warmup(
     num_warmup_steps=0,
     num_training_steps=total_steps
 )
-loss_fn = nn.BCELoss(weight=class_weights).to(device)
+# loss_fn = nn.BCELoss(weight=class_weights).to(device)
 
 
 def main():
@@ -71,7 +71,7 @@ def main():
         train_acc, train_loss = train_epoch(
             model,
             train_data_loader,
-            loss_fn,
+            # loss_fn,
             optimizer,
             device,
             scheduler,
@@ -83,7 +83,7 @@ def main():
         val_acc, val_loss = eval_model(
             model,
             dev_data_loader,
-            loss_fn,
+            # loss_fn,
             device,
             len(df_dev)
         )

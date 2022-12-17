@@ -3,11 +3,12 @@ import ast
 import numpy as np
 import torch
 
+from utilities.weights import weights
+
 
 def train_epoch(
         model,
         data_loader,
-        loss_fn,
         optimizer,
         device,
         scheduler,
@@ -34,6 +35,8 @@ def train_epoch(
             feature_inputs=feature_input,
         )
         preds = (outputs > 0.5).float()
+        class_weights = weights(targets)
+        loss_fn = torch.nn.BCELoss(class_weights).to(device)
         loss = loss_fn(outputs, targets)
         correct_predictions += torch.sum(preds == targets)
         losses.append(loss.item())
@@ -46,7 +49,7 @@ def train_epoch(
     return correct_predictions.double() / n_examples, np.mean(losses)
 
 
-def eval_model(model, data_loader, loss_fn, device, n_examples):
+def eval_model(model, data_loader,  device, n_examples):
     model = model.eval()
 
     losses = []
@@ -70,6 +73,8 @@ def eval_model(model, data_loader, loss_fn, device, n_examples):
                 feature_inputs=feature_input,
             )
             preds = (outputs > 0.5).float()
+            class_weights = weights(targets)
+            loss_fn = torch.nn.BCELoss(class_weights).to(device)
             loss = loss_fn(outputs, targets)
             correct_predictions += torch.sum(preds == targets)
             losses.append(loss.item())
