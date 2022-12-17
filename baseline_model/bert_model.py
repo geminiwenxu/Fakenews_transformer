@@ -5,7 +5,7 @@ from transformers import AutoModel
 class BertBinaryClassifier(nn.Module):
     def __init__(self):
         super(BertBinaryClassifier, self).__init__()
-        self.bert = AutoModel.from_pretrained('bert-base-german-cased')
+        self.bert = AutoModel.from_pretrained('bert-base-german-cased', do_lower_case=False)
         self.drop = nn.Dropout(p=0.3)
         self.out = nn.Linear(self.bert.config.hidden_size, 1)
         self.sigmoid = nn.Sigmoid()

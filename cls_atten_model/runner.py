@@ -17,7 +17,7 @@ from utilities.plot import plot
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class_names = ['real', 'fake']
-tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=True)
+tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=False)
 
 
 def get_config(path):
