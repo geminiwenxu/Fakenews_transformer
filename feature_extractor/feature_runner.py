@@ -32,7 +32,6 @@ def main():
     pd_arousal = pd.read_csv(filepath_or_buffer='feature_extractor/list_arousal.csv', sep=';')
     dict_arousal = pd_arousal.set_index('WORD_LOWER').to_dict()['AROUSAL_MEAN']
 
-
     # keywords list
     # fear
     fear = pd.read_csv('feature_extractor/keywords_fear.txt')
