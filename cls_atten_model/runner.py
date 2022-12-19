@@ -26,7 +26,7 @@ def get_config(path):
     return conf
 
 
-config = get_config('/../../config/config.yaml')
+config = get_config('/../config/config.yaml')
 MAX_LEN = config['max_len']
 BATCH_SIZE = config['batch_size']
 
