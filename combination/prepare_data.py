@@ -32,7 +32,7 @@ class ReviewDataset(Dataset):
         )
         length = encoding.attention_mask.sum(1)
         return {
-            'length': length,
+            'length': torch.tensor(length),
             'review_text': review,
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),

@@ -23,7 +23,7 @@ class FeatureConverter(nn.Module):
         super(FeatureConverter, self).__init__()
         self.batch_size = batch_size
         self.layer1 = nn.Linear(25, self.batch_size)
-        self.layer2 = nn.Linear(self.batch_size, 32)
+        self.layer2 = nn.Linear(self.batch_size, 128)
 
     def forward(self, feature_input):
         hidden_output = self.layer1(feature_input)
@@ -34,7 +34,7 @@ class DenseConverter(nn.Module):
     def __init__(self, batch_size):
         super(DenseConverter, self).__init__()
         self.batch_size = batch_size
-        self.layer1 = nn.Linear(983040 + self.batch_size * 32, 64)
+        self.layer1 = nn.Linear(983040 + self.batch_size * 128, 64)
         self.layer2 = nn.Linear(64, self.batch_size)
         self.drop = nn.Dropout(p=0.3)
         self.sigmoid = nn.Sigmoid()

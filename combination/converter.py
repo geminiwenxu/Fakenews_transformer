@@ -12,7 +12,7 @@ class BertConverter():
         super(BertConverter, self).__init__()
         self.model = AutoModel.from_pretrained('bert-base-german-cased', output_hidden_states=True).to(device)
         self.activation = nn.GELU()
-        self.cls_encoder = nn.Linear(4 * self.model.config.hidden_size, 128)
+        self.cls_encoder = nn.Linear(4 * self.model.config.hidden_size, 128).to(device)
         self.model.train()
 
     def forward(self, input_ids, attention_mask):
@@ -26,13 +26,13 @@ class TextConverter(BertConverter):
     def __init__(self, batch_size):
         super(TextConverter, self).__init__()
         self.tokenizer = AutoTokenizer.from_pretrained('bert-base-german-cased', do_lower_case=False)
-        self.text_encoder = nn.LSTM(self.model.config.hidden_size, 128, bidirectional=True)
+        self.text_encoder = nn.LSTM(self.model.config.hidden_size, 128, bidirectional=True).to(device)
         self.batch_size = batch_size
 
     def encode(self, input_ids, attention_mask, length):
         bert_results = self.model(input_ids, attention_mask)
         v_length = torch.flatten(length)
-        packed = pack_padded_sequence(bert_results.last_hidden_state, v_length, batch_first=True, enforce_sorted=False)
+        packed = pack_padded_sequence(bert_results.last_hidden_state, v_length.cpu(), batch_first=True, enforce_sorted=False)
         _, (rnn_last_hidden_state, _) = self.text_encoder(packed)
         encoded_text = rnn_last_hidden_state.view(self.batch_size, -1)
         return encoded_text
@@ -42,7 +42,7 @@ class FeatureConverter(nn.Module):
     def __init__(self, batch_size):
         super(FeatureConverter, self).__init__()
         self.batch_size = batch_size
-        self.layer1 = nn.Linear(3, self.batch_size)
+        self.layer1 = nn.Linear(25, self.batch_size)
         self.layer2 = nn.Linear(self.batch_size, 128)
         self.activation = nn.GELU()
 

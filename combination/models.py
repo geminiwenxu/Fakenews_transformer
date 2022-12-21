@@ -16,7 +16,7 @@ class FakeNewsBinaryModel(nn.Module):
         self.dense_converter = DenseConverter(batch_size=self.batch_size)
 
     def forward(self, input_ids, attention_mask, length, **feature_input):
-        bert_embedding = torch.FloatTensor(self.bert_converter.forward(input_ids, attention_mask)).to(device)
+        bert_embedding = torch.tensor(self.bert_converter.forward(input_ids, attention_mask))
         feature_embedding = self.feature_converter.forward(feature_input['feature_inputs'])
         text_embedding = self.text_converter.encode(input_ids, attention_mask, length)
         prob = self.dense_converter(bert_embedding, text_embedding, feature_embedding)
