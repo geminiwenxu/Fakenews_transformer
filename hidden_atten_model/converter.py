@@ -34,8 +34,8 @@ class AttenDenseConverter(nn.Module):
     def __init__(self, batch_size):
         super(AttenDenseConverter, self).__init__()
         self.batch_size = batch_size
-        self.layer1 = nn.Linear(3933248, 32)
-        self.layer2 = nn.Linear(32, self.batch_size)
+        self.layer1 = nn.Linear(983360, 64)
+        self.layer2 = nn.Linear(64, self.batch_size)
         self.drop = nn.Dropout(p=0.3)
         self.sigmoid = nn.Sigmoid()
 
