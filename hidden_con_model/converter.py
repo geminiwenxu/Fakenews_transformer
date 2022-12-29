@@ -34,7 +34,7 @@ class DenseConverter(nn.Module):
     def __init__(self, batch_size):
         super(DenseConverter, self).__init__()
         self.batch_size = batch_size
-        self.layer1 = nn.Linear(983040 + self.batch_size * 128, 64)
+        self.layer1 = nn.Linear(1966592, 64)
         self.layer2 = nn.Linear(64, self.batch_size)
         self.drop = nn.Dropout(p=0.3)
         self.sigmoid = nn.Sigmoid()
