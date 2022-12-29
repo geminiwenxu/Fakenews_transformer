@@ -32,8 +32,9 @@ def main():
                     'emotion': ['positive', 'negative', 'fear', 'hate', 'arousal', 'exag'],
                     'complexity': ['num_chars', 'num_words'],
                     'uncertainty': ['modal', 'numbers', 'question'],
-                    'subjectivity': [ 'pop', 'manip', 'scandal'],
-                    'misc': ['nouns',  'adjectives',  'ner']
+                    'subjectivity': ['personal', 'quatation', 'negations', 'oov'],
+                    'lexica': ['pop', 'manip', 'scandal'],
+                    'formal': ['nouns',  'adjectives',  'ner']
     }
 
     ## chose the group you want to eliminate
