@@ -13,7 +13,8 @@ class BertConverter():
 
     def forward(self, input_ids, attention_mask):
         bert_results = self.model(input_ids, attention_mask)
-        return bert_results.last_hidden_state[0, 0, :].detach().cpu().numpy().tolist()
+        cls = bert_results.last_hidden_state[:, 0, :].flatten()
+        return cls.detach().cpu().numpy().tolist()
 
 
 class FeatureConverter(nn.Module):

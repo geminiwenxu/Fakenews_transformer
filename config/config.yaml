@@ -1,16 +1,21 @@
 train:
-  path: /../data/train_sample.json
+  path: /../data/feats_train_norm.json
 
 dev:
-  path: /../data/dev_sample.json
+  path: /../data/feats_dev_norm.json
 
 test:
-  path: /../data/test_sample.json
+  path: /../data/feats_test_norm.json
 
-epoch: 1
-batch_size: 5
+misclassification:
+  path: /../data/misclassification.json
+correct_classification:
+  path: /../data/correct_classification.json
+epoch: 5
+batch_size: 16
 max_len: 160
-learning_rate: 0.0001
+learning_rate: 0.000001
+
 path_dict_pos:
   path: /../data/dictPositive.p
 path_dict_neg:

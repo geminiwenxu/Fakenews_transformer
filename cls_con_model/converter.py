@@ -13,7 +13,8 @@ class BertConverter():
 
     def forward(self, input_ids, attention_mask):
         bert_results = self.model(input_ids, attention_mask)
-        return bert_results.last_hidden_state[0, 0, :].detach().cpu().numpy().tolist()
+        cls = bert_results.last_hidden_state[:, 0, :].flatten()
+        return cls.detach().cpu().numpy().tolist()
 
 
 class FeatureConverter(nn.Module):
@@ -32,7 +33,7 @@ class DenseConverter(nn.Module):
     def __init__(self, batch_size):
         super(DenseConverter, self).__init__()
         self.batch_size = batch_size
-        self.layer1 = nn.Linear(768 + self.batch_size * 128, 64)
+        self.layer1 = nn.Linear(768*self.batch_size + self.batch_size * 128, 64)
         self.layer2 = nn.Linear(64, self.batch_size)
         self.drop = nn.Dropout(p=0.3)
         self.sigmoid = nn.Sigmoid()
