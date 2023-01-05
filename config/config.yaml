@@ -7,10 +7,14 @@ dev:
 test:
   path: /../data/feats_test_norm.json
 
+<<<<<<< HEAD
 misclassification:
   path: /../data/misclassification.json
 correct_classification:
   path: /../data/correct_classification.json
+=======
+
+>>>>>>> 5937b8681549231a4fefa4a666f2296c5e25e942
 epoch: 5
 batch_size: 16
 max_len: 160
