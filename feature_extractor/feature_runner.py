@@ -7,8 +7,7 @@ from draft_feats import Article, Headline
 import pickle
 import spacy
 from sklearn import preprocessing
-
-
+from sklearn.model_selection import train_test_split
 
 
 def get_config(path: str) -> dict:
@@ -19,60 +18,54 @@ def get_config(path: str) -> dict:
 
 def main():
     config = get_config('/../config/config.yaml')
-    train_path = resource_filename(__name__, config['train']['path'])
-    df = pd.read_json(train_path)
+    test_path = resource_filename(__name__, config['test']['path'])
+    df_test = pd.read_json(test_path)
+    test_path = resource_filename(__name__, config['dev']['path'])
+    df_dev = pd.read_json(test_path)
+    test_path = resource_filename(__name__, config['train']['path'])
+    df_train = pd.read_json(test_path)
+
+    df = pd.concat([df_test, df_dev, df_train])
+
+    try:
+        df.drop('feature_input', inplace=True, axis=1)
+    except:
+        pass
 
     nlp = spacy.load('de_core_news_lg')
-    # get dictionaries for positive, negative and arousal words
-    # load keyword list
-    #dict_positive = pickle.load(open("feature_extractor/dictPositive.p", "rb"))
     dict_positive = pickle.load(open(resource_filename(__name__, config['path_dict_pos']['path']), "rb"))
-
-    #dict_negative = pickle.load(open("feature_extractor/dictNegative.p", "rb"))
     dict_negative = pickle.load(open(resource_filename(__name__, config['path_dict_neg']['path']), "rb"))
-    #keywords = pd.read_csv('Keywords_fake.txt')
-    #keywords = keywords.keyword.str.lower().tolist()
-    #pd_arousal = pd.read_csv(filepath_or_buffer='feature_extractor/list_arousal.csv', sep=';')
     pd_arousal = pd.read_csv(filepath_or_buffer=resource_filename(__name__, config['path_arousal']['path']), sep=';')
 
     dict_arousal = pd_arousal.set_index('WORD_LOWER').to_dict()['AROUSAL_MEAN']
 
-    # keywords list
-    # fear
-    #fear = pd.read_csv('feature_extractor/keywords_fear.txt')
-    fear = pd.read_csv(resource_filename(__name__, config['path_fear']['path']))
-    fear = fear.keyword.str.lower().tolist()
-    #scandal
-    #scandal = pd.read_csv('feature_extractor/keywords_scandal.txt')
-    scandal = pd.read_csv(resource_filename(__name__, config['path_scandal']['path']))
-    scandal = scandal.keyword.str.lower().tolist()
-    #populism
-    #polulism = pd.read_csv('feature_extractor/keywords_populism.txt')
-    polulism = pd.read_csv(resource_filename(__name__, config['path_pop']['path']))
-    polulism = polulism.keyword.str.lower().tolist()
+    # dicts
+    topoi = pd.read_csv(resource_filename(__name__, config['path_dict_topoi']['path']), sep=';')
+    topoi = topoi.term.str.lower().tolist()
 
-    # manipulation
-    #manipulation = pd.read_csv('feature_extractor/keywords_manipulation.txt')
-    manipulation = pd.read_csv(resource_filename(__name__, config['path_manipulation']['path']))
-    manipulation = manipulation.keyword.str.lower().tolist()
+    anto = pd.read_csv(resource_filename(__name__, config['path_dict_anto']['path']), sep=';')
+    anto = anto.term.str.lower().tolist()
+
+    style = pd.read_csv(resource_filename(__name__, config['path_dict_style']['path']), sep=';')
+    style = style.term.str.lower().tolist()
+
 
     # for hatespeech detection
     model_name = 'EIStakovskii/german_toxicity_classifier_plus_v2'
     toxicity_pipeline = pipeline('text-classification', model=model_name, tokenizer=model_name)
 
-
+    # for testing purposes
     df_new = df.iloc[:,:]
 
     list_feats = []
     for index, row in df_new.iterrows():
         feats_article = Article(raw_text=row['text'],
-                                dict_positive=dict_positive, dict_negative=dict_negative, keywords_fear=fear, keywords_scandal=scandal, keywords_pop=polulism,keywords_manip=manipulation,
+                                dict_positive=dict_positive, dict_negative=dict_negative, dict_style=style,
+                                dict_anto=anto, dict_topo=topoi,
                                 dict_arousal=dict_arousal, toxicity_pipeline=toxicity_pipeline, nlp=nlp
                                 )
-        #print(feats_article.return_results())
 
         feats_headline = Headline(row['title'], nlp)
-        #print(feats_headline.return_results())
 
         feats_all = feats_article.return_results() + feats_headline.return_results()
 
@@ -80,24 +73,9 @@ def main():
 
     df_feats = pd.DataFrame(list_feats)
 
-
-    # replace outliers with quantiles
-    '''
-    for i in range(0, 24):
-            lower_limit = df_feats[i].quantile(0.05)
-            upper_limit = df_feats[i].quantile(0.95)
-            df_feats[i] = np.where(df_feats[i] > upper_limit, upper_limit,
-                                   np.where(df_feats[i] < lower_limit, lower_limit,
-                                            df_feats[i]))
-    '''
     scaler = preprocessing.RobustScaler(quantile_range=(5.0, 95.0))
     df_feats_scaled = scaler.fit_transform(df_feats)
     df_feats_scaled = pd.DataFrame(df_feats_scaled)
-
-    # save the feats for furher inspection
-    df_feats['label_id'] = df_new['label_id']
-    df_feats['url'] = df_new['url']  #act as a key for later join
-    df_feats.to_csv('feats_train2.csv')
 
     df_new['feature_input'] = df_feats_scaled.values.tolist()
     df_new['feature_input'] = df_new['feature_input'].astype(str)
@@ -106,8 +84,17 @@ def main():
         print("nan values removed")
         df_new = df_new.drop([df_new.index[df_new[df_new['feature_input'].str.contains('nan')].index[0]]])
 
-    df_new.to_json(path_or_buf='news_feats_train_norm.json', force_ascii=False, orient='records')
+    news_train, news_test, = train_test_split(df_new, test_size=0.2, shuffle=True)
+    news_test, news_dev, = train_test_split(news_test, test_size=0.5, shuffle=True)
 
+    news_train.to_json(path_or_buf='feats_train_norm.json', force_ascii=False, orient='records')
+    news_test.to_json(path_or_buf='feats_test_norm.json', force_ascii=False, orient='records')
+    news_dev.to_json(path_or_buf='feats_dev_norm.json', force_ascii=False, orient='records')
+
+    # save the raw feats before normalization
+    df_feats['label_id'] = df_new['label_id']
+    df_feats['url'] = df_new['url']  #act as a key for later join
+    df_feats.to_csv('feats_raw.csv')
 
 if __name__ == "__main__":
     main()

@@ -8,8 +8,8 @@ from transformers import pipeline
 
 
 class Article():
-    def __init__(self, raw_text, dict_positive, dict_negative, keywords_fear, keywords_scandal, keywords_pop,
-                 keywords_manip, dict_arousal,
+    def __init__(self, raw_text, dict_positive, dict_negative, dict_style, dict_anto, dict_topo,
+                 dict_arousal,
                  toxicity_pipeline, nlp):
         self.raw_text = raw_text
         self.nlp = nlp
@@ -17,33 +17,36 @@ class Article():
         self.dict_positive = dict_positive
         self.dict_negative = dict_negative
         self.dict_arousal = dict_arousal
-        self.keywords_fear = keywords_fear
-        self.keywords_scandal = keywords_scandal
-        self.keywords_pop = keywords_pop
-        self.keywords_manip = keywords_manip
+        self.dict_style = dict_style
+        self.dict_anto = dict_anto
+        self.dict_topo = dict_topo
+        #self.keywords_fear = keywords_fear
+        #self.keywords_scandal = keywords_scandal
+        #self.keywords_pop = keywords_pop
+        #self.keywords_manip = keywords_manip
         self.text = self.preproces()
         self.doc = self.to_spacy()
         self.num_chars = self.get_word_len()
         self.num_words = self.get_sent_len()
         # self.num_clauses = None
-        self.positive = self.get_positive_words()
-        self.negative = self.get_negative_words()
-        self.nouns = self.get_no_nouns()
-        self.modal = self.get_no_noun_modal()
-        self.adjectives = self.get_no_adj()
-        self.arousal = self.get_arousive_words()
+        self.positive = self.get_positive_words()/len(self.doc)
+        self.negative = self.get_negative_words()/len(self.doc)
+        self.nouns = self.get_no_nouns()/len(self.doc)
+        self.modal = self.get_no_noun_modal()/len(self.doc)
+        self.adjectives = self.get_no_adj()/len(self.doc)
+        self.arousal = self.get_arousive_words()/len(self.doc)
         # self.count_keywords = self.get_count_keywords()
-        self.fear, self.pop, self.manip, self.scandal = self.get_scores()
-        self.numbers = self.get_no_num()
-        self.ner = self.get_count_ner()
-        self.oov = self.get_no_oov()
-        self.question = self.get_questions()
-        self.exag = self.get_exag()
-        self.quatation = self.get_quatation()
-        self.exclamation = self.get_exclamation()
-        self.personal = self.get_personal()
+        self.count_style, self.count_anto, self.count_topoi = self.get_scores()
+        self.numbers = self.get_no_num()/len(self.doc)
+        self.ner = self.get_count_ner()/len(self.doc)
+        self.oov = self.get_no_oov()/len(self.doc)
+        self.question = self.get_questions()/len(self.doc)
+        self.exag = self.get_exag()/len(self.doc)
+        self.quatation = self.get_quatation()/len(self.doc)
+        self.exclamation = self.get_exclamation()/len(self.doc)
+        self.personal = self.get_personal()/len(self.doc)
         self.hate = self.get_hate_score()
-        self.negations = self.count_negations()
+        self.negations = self.count_negations()/len(self.doc)
 
     def to_spacy(self):
         doc = self.nlp(self.text)
@@ -200,6 +203,7 @@ class Article():
         neg_pattern = r"(kein|nie|weder|ohne|nicht)."
         return len(re.findall(neg_pattern, self.text))
 
+    # wird nicht gebraucht, das Lexicon Scandal enthält diese Wörter schon
     def get_exag(self):
         # dramatisch, steigend, massenhaft  # Schaefer S.177 , schwerwiegend, äußerst, massiv, enorm, extrem, hochgradig Breil et. al S.250 , absolut, total, völlig Scharloth s.7
         exag = [t for t in self.doc if
@@ -208,16 +212,25 @@ class Article():
         return len(exag)
 
     def get_scores(self):
-        self.count_pop = 0
-        self.count_fear = 0
-        self.count_manip = 0
-        self.count_scandal = 0
+        self.count_style = 0
+        self.count_anto = 0
+        self.count_topoi = 0
+
+        for t in self.doc:
+            if t.is_stop is False and t.is_space is False:
+                if (t.text.lower() in self.dict_style): self.count_style += 1
+                if (t.text.lower() in self.dict_anto): self.count_anto += 1
+                if (t.text.lower() in self.dict_topo): self.count_topoi += 1
+        return self.count_style/len(self.doc), self.count_anto/len(self.doc), self.count_topoi/len(self.doc)
+
+        """
         for i in self.doc:
             if any(t in i.text.lower() for t in self.keywords_fear): self.count_fear += 1
             if any(t in i.text.lower() for t in self.keywords_pop): self.count_pop += 1
             if any(t in i.text.lower() for t in self.keywords_manip): self.count_manip += 1
             if any(t in i.text.lower() for t in self.keywords_scandal): self.count_scandal += 1
-        return self.count_fear, self.count_pop, self.count_manip, self.count_scandal
+        """
+        #return self.count_fear, self.count_pop, self.count_manip, self.count_scandal
 
     def return_results(self):
         results = [self.num_chars,
@@ -228,17 +241,20 @@ class Article():
                    self.modal,
                    self.adjectives,
                    self.arousal,
-                   self.fear,
-                   self.pop,
-                   self.manip,
-                   self.scandal,
+                   #self.fear,
+                   #self.pop,
+                   #self.manip,
+                   #self.scandal,
+                   self.count_style,
+                   self.count_anto,
+                   self.count_topoi,
                    self.numbers,
                    self.ner,
                    self.oov,
                    self.question,
-                   self.exag,
+                   #self.exag,
                    self.quatation,
-                  # self.exclamation,  not passing the t-test
+                   self.exclamation,
                    self.personal,
                    self.hate,
                    self.negations]
