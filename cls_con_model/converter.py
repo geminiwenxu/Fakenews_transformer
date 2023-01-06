@@ -21,7 +21,7 @@ class FeatureConverter(nn.Module):
     def __init__(self, batch_size):
         super(FeatureConverter, self).__init__()
         self.batch_size = batch_size
-        self.layer1 = nn.Linear(25, self.batch_size)
+        self.layer1 = nn.Linear(24, self.batch_size)
         self.layer2 = nn.Linear(self.batch_size, 128)
 
     def forward(self, feature_input):
