@@ -19,26 +19,23 @@ def get_config(path):
 def num_words(df):
     nlp = spacy.load('de_core_news_sm')
     num_adj = 0
-    avg_sen = 0
+    num_words = 0
     ents = Counter()
-    num_char = 0
+    num_chars = 0
     for idx, row in df.iterrows():
-        num_char += len(row['text'])
-        num_word = len(row['text'].split())
-        num_sentence = len(sent_tokenize(row['text']))
-        avg_sen += num_word / num_sentence
+        num_chars += len(row['text']) / len(row['text'].split())
+        num_words += len(row['text'].split()) / len(sent_tokenize(row['text']))
         doc = nlp(row['text'])
         for token in doc:
             if token.pos_ == "ADJ":
                 num_adj += 1
         for ent in doc.ents:
             ents[f"{ent.label_}:{ent.text}"] += 1
-    print(idx)
-    print(avg_sen / idx)
+    print(num_words / idx)
     num_ner = sum(ents.values())
     print(num_ner / idx)
     print(num_adj / idx)
-    print(num_char/idx)
+    print(num_chars / idx)
 
 
 def len_title(df):
