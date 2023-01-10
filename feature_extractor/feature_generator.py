@@ -21,9 +21,7 @@ import pandas as pd
 import spacy
 # import time
 import torch
-
 from nltk import ngrams
-
 from scipy.special import binom
 from scipy.stats import entropy
 from sklearn.metrics.pairwise import cosine_similarity
@@ -1863,9 +1861,9 @@ if __name__ == "__main__":
     #                      lmbd(), NDW(), PPD(), PREPPD(), Q(), R1(), RR(), RRR(), STC(), Syn(), TC(),
     #                      TypeTokenRatio(), uniquegrams(), VD(), VPD()])
     sc = Scorer(scorers=[ADJPD(), AdjustedModulus(), ADVPD(), Alpha(), APD(), ATL(), AutoBERTT(), ASL(),
-                     CurveLength(), DPD(), Entropy(), Gini(), HL(), HPoint(), IPD(), NPD(), Lambda(),
-                     lmbd(), NDW(), PPD(), PREPPD(), Q(), R1(), RR(), RRR(), STC(), Syn(), TC(),
-                     TypeTokenRatio(), uniquegrams(), VD(), VPD()])
+                         CurveLength(), DPD(), Entropy(), Gini(), HL(), HPoint(), IPD(), NPD(), Lambda(),
+                         lmbd(), NDW(), PPD(), PREPPD(), Q(), R1(), RR(), RRR(), STC(), Syn(), TC(),
+                         TypeTokenRatio(), uniquegrams(), VD(), VPD()])
     scores, names, text_hash = sc.run("de", "dummy",
                                       "Fiona und Marc Sauer* sind erschöpft. Müde. Ausgelaugt. Angespannt. Die Eltern haben für ihren Sohn Maximilian*, sieben Jahre alt, keinen Betreuungsplatz am Nachmittag gefunden. Das heißt: Der Erstklässler kommt seit September - an den meisten Tagen - um 11.30 Uhr von der Schule nach Hause. Fiona und Marc Sauer sind aber beide berufstätig.")
     print(scores)
