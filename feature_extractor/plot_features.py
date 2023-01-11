@@ -65,8 +65,6 @@ palette = {
     'True': '#8FBC8F',
 }
 
-print(mcolors.CSS4_COLORS)
-
 plt.figure(figsize=(10,7))
 sns.catplot(data=df_plt, kind="box", x="variable", y="value", hue="Label", palette=palette)
 plt.title("test")
