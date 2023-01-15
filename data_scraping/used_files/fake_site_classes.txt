@@ -1,0 +1,52 @@
+Hoax_Site;body;title
+http://blauerbote.com;entry-content clearfix;entry-title
+http://www.truth24.net/;entry-content clearfix;post-title entry-title
+http://www.rapefugees.net/;entry-content clearfix; entry-title
+https://www.unzensuriert.at;elementor-element elementor-element-e6c8104 elementor-widget elementor-widget-theme-post-content;title
+http://www.guidograndt.de/2018/01/22/kollegenbeitrag-waehler-verraeter-spd/;entry-content;title single
+https://de.sott.net;article-body;title
+https://www.info-direkt.eu;entry-content clearfix;entry-title mh-posts-grid-title
+https://opposition24.com;is-layout-flow entry-content wp-block-post-content;wp-block-post-title
+http://www.pi-news.net;td-post-content;td-post-title
+https://journalistenwatch.com/;elementor-widget-container;title
+https://philosophia-perennis.com;tdb-block-inner td-fix-index;title
+https://bayern-depesche.de;itemBody;title
+https://dieunbestechlichen.com;entry-content;title
+https://www.anonymousnews.org;entry-content herald-entry-content;title
+https://www.compact-online.de;post-content cf entry-content content-spacious-full;title
+https://zuerst.de;single-archive;title
+http://www.mmnews.de;item item-page item-featured;title
+http://www.anonymousnews.ru;entry-content herald-entry-content;title
+https://alpenschau.com;entry-content;title
+https://www.labournet.de;blog-single-content;title
+https://www.wsws.org;content georgia _avenir f5 f4-m f4-l f5-p lh-copy _measure-wide;title
+https://www.zeitenschrift.com;small-24 medium-17 columns;current
+https://perspektive-online.net;td-post-content tagdiv-type;title
+https://apolut.net;col-md-8 mx-auto single-post-content;title
+https://www.anti-spiegel.ru;article__content;article-meta__title
+https://exxpress.at;article-body wpb_column vc_column_container vc_col-sm-6;vc_custom_heading article-heading
+https://unser-mitteleuropa.com;td-post-content tagdiv-type;title
+https://ansage.org;td-post-content tagdiv-type;title
+https://www.wochenblick.at;elementor-widget-container;title
+https://www.news.de;articleContent__main;title
+https://overton-magazin.de;entry-content;title
+https://report24.news;elementor-widget-container;title
+https://gloria.tv;statement tile;title
+https://tkp.at;fusion-content-tb fusion-content-tb-1;title
+https://www.achgut.com;artikeltext;title
+https://deutschlandkurier.de;tdb-block-inner td-fix-index;title
+https://reitschuster.de;elementor-widget-container;title
+https://corona-transition.org;article-main-content crayon article-texte-11552;title
+https://www.presseportal.de;card;title
+https://2020news.de;tdb-block-inner td-fix-index;title
+https://corona-blog.net;wp-block-getwid-section__inner-content;title
+https://www.zentrum-der-gesundheit.de;bg-white sm:rounded-md p-6;title
+https://uncutnews.ch;elementor-widget-container;title
+https://freeworldnews.us;s-post-content s-post-small-el bb-mb-el;title
+https://www.freiewelt.net;single-page-article;title
+
+
+
+
+
+
