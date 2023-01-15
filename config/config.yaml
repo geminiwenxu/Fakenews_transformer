@@ -6,6 +6,9 @@ dev:
 
 test:
   path: /../data/feats_test_norm.json
+  
+data_all:
+  path: /../data/data_all.json
 
 
 misclassification:
