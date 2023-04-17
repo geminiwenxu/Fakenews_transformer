@@ -1,11 +1,11 @@
 train:
-  path: /../data/feats_train_norm.json
+  path: /../data/train_test.json
 
 dev:
-  path: /../data/feats_dev_norm.json
+  path: /../data/dev_test.json
 
 test:
-  path: /../data/feats_test_norm.json
+  path: /../data/test_test.json
   
 data_all:
   path: /../data/data_all.json
